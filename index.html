@@ -1,0 +1,1637 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Máximo, mínimo y dirección nula · Unidad 3 · AM II Química</title>
+<!-- ============================================================
+     laboratoriobest-IA · Análisis Matemático II · Tecnicatura Superior en Química · INSPT-UTN
+     Unidad 3 · Máximo, mínimo y dirección nula: las propiedades direccionales del gradiente
+     Archivo único: HTML5 + CSS propio + JS vanilla + Plotly.js (CDN, con respaldo 2D)
+     ============================================================ -->
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,700;1,9..144,400&family=STIX+Two+Text:ital,wght@0,400;0,600;1,400;1,600&display=swap" rel="stylesheet">
+<script>
+(function(){
+  var fuentes = [
+    'https://cdn.plot.ly/plotly-2.35.2.min.js',
+    'https://cdn.jsdelivr.net/npm/plotly.js-dist-min@2.35.2/plotly.min.js',
+    'https://cdnjs.cloudflare.com/ajax/libs/plotly.js/2.27.0/plotly.min.js'
+  ];
+  var i = 0; window.__plotlyEstado = 'cargando';
+  function intentar(){
+    if(i >= fuentes.length){ window.__plotlyEstado = 'error'; if(window.__plotlyListo) window.__plotlyListo(); return; }
+    var s = document.createElement('script'); s.src = fuentes[i++];
+    s.onload = function(){ window.__plotlyEstado = 'ok'; if(window.__plotlyListo) window.__plotlyListo(); };
+    s.onerror = function(){ s.remove(); intentar(); };
+    document.head.appendChild(s);
+  }
+  intentar();
+  setTimeout(function(){ if(window.__plotlyEstado === 'cargando'){ window.__plotlyEstado = 'error'; if(window.__plotlyListo) window.__plotlyListo(); } }, 12000);
+})();
+</script>
+<style>
+:root{
+  --navy:#0f2244; --navy2:#1a3a6e; --blue:#1d6fcc; --blue2:#2d82e6; --sky:#38bdf8;
+  --bg:#eef4fb; --bg2:#f8fbff; --white:#fff;
+  --g50:#f8fafc; --g100:#f1f5f9; --g200:#e2e8f0; --g300:#cbd5e1; --g400:#94a3b8; --g500:#64748b; --g600:#475569; --g700:#334155; --g800:#1e293b;
+  --ok:#059669; --ok-bg:#ecfdf5; --ok-bd:#a7f3d0;
+  --amb:#b45309; --amb-bg:#fffbeb; --amb-bd:#fcd34d;
+  --def:#1e40af; --def-bg:#eef4ff; --def-bd:#93c5fd;
+  --err:#be123c; --err-bg:#fff1f2; --err-bd:#fecdd3;
+  --int:#6d28d9; --int-bg:#f5f3ff; --int-bd:#c4b5fd;
+  --lab-terra:#b57d4c; --lab-blue:#415a8e; --lab-dark:#20201c; --lab-cream:#faf8f1; --lab-gray:#6579a1;
+  --ej:#1d6fcc;
+  --grad:#e11d48; --dir:#2563eb; --nula:#15803d; --min:#7c3aed; --corte:#ea580c;
+  --pos:#16a34a; --neg:#dc2626;
+  --r:12px; --rl:16px; --sh:0 4px 6px -1px rgba(0,0,0,.08),0 2px 4px -1px rgba(0,0,0,.05);
+  --mathfont:'STIX Two Text','STIX Two Math','Cambria Math','Times New Roman',serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'Outfit',system-ui,sans-serif;background:var(--bg);color:var(--g800);line-height:1.6;min-height:100vh}
+h1,h2,h3,h4{font-family:'Fraunces',Georgia,serif;line-height:1.25;color:var(--navy)}
+h1{font-size:clamp(1.6rem,3.5vw,2.3rem)} h2{font-size:clamp(1.3rem,2.6vw,1.7rem)} h3{font-size:1.15rem} h4{font-size:1rem}
+p{margin-bottom:.7em} strong{color:var(--navy)}
+ul,ol{margin:.3em 0 .8em 1.3em} li{margin:.2em 0}
+a{color:var(--blue)}
+sup,sub{font-size:.72em;line-height:0}
+button{font-family:inherit}
+main{overflow-x:hidden}
+
+/* ---------- matemática (STIX Two Text, variables en cursiva, fracciones apiladas, radical SVG) ---------- */
+.mi,.md,.calc,.fr,.rt{font-family:var(--mathfont);font-style:normal}
+.mi{white-space:nowrap;font-size:1.06em}
+.mi i,.md i,.calc i,.fr i,.rt i,.tblm i,.lect i{font-style:italic}
+.op{font-style:normal}
+.tx{font-family:'Outfit',sans-serif;font-style:normal;font-size:.92em}
+.md{display:block;font-size:1.18em;margin:.55em 0;padding:.25em .4em;line-height:1.7;text-align:center;overflow:visible;white-space:normal;overflow-wrap:anywhere}
+.md .fr,.md .par,.md .rt,.md .lim{white-space:nowrap}
+.md.left{text-align:left}
+.fr{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;margin:0 .15em;text-align:center;line-height:1.25}
+.fr .fn{padding:0 .3em .08em}
+.fr .fd{border-top:1.3px solid currentColor;padding:.08em .3em 0}
+.fr.sm{font-size:.85em}
+sup .fr,sub .fr{font-size:.95em;margin:0 .05em;vertical-align:baseline}
+.rt{display:inline-flex;align-items:stretch;vertical-align:middle;margin:0 .08em;white-space:nowrap}
+.rt .sg{position:relative;width:.72em;flex-shrink:0}
+.rt .sg svg{position:absolute;left:0;top:0;width:100%;height:100%;overflow:visible}
+.rt .rd{border-top:1.3px solid currentColor;padding:.1em .12em 0 .1em;display:inline-flex;align-items:center}
+.vec{position:relative;display:inline-block;padding-top:.2em;line-height:1}
+.vec::before{content:'→';position:absolute;left:0;right:0;top:-.42em;font-size:.6em;text-align:center;font-style:normal;line-height:1}
+.par{display:inline-flex;align-items:center;vertical-align:middle;gap:.1em}
+.par .pl,.par .pr{align-self:stretch;display:inline-flex;align-items:center;font-size:1em}
+.par:has(.fr) .pl,.par:has(.fr) .pr{font-size:1.9em;font-weight:200;line-height:.8}
+.par:has(.fr .fr) .pl,.par:has(.fr .fr) .pr{font-size:2.4em}
+.ub{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;margin:0 .1em}
+.ub .ubl{font-size:.68em;border-top:1.2px solid currentColor;padding-top:2px;margin-top:2px;line-height:1.1}
+.boxed{display:inline-block;border:1.3px solid currentColor;border-radius:4px;padding:0 .35em}
+.lim{display:inline-flex;flex-direction:column;align-items:center;line-height:1.05;vertical-align:middle;margin:0 .15em}
+.lim .lsub{font-size:.68em}
+.cgrad{color:var(--grad)} .cdir{color:var(--dir)} .cnula{color:var(--nula)} .cmin{color:var(--min)}
+.cpos{color:var(--pos)} .cneg{color:var(--neg)}
+
+/* ---------- chrome oficial ---------- */
+.topbar{background:linear-gradient(135deg,var(--navy) 0%,#1a3a6e 100%);color:#e0f2fe;padding:14px 0;box-shadow:0 2px 8px rgba(0,0,0,.15)}
+.topbar-inner{max-width:1160px;margin:0 auto;padding:0 20px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:10px}
+.brand-inspt{font-size:12px;color:#7dd3fc;letter-spacing:.1em;font-weight:700}
+.brand-title{font-family:'Fraunces',serif;font-size:18px;color:#fff;font-weight:700}
+.brand-sub{font-size:12px;color:#bfdbfe}
+.lab-logo{background:var(--lab-cream);padding:8px 18px 7px;border-radius:12px;text-align:left;box-shadow:0 2px 6px rgba(0,0,0,.15)}
+.lab-name{display:flex;align-items:center;font-family:'Fraunces',Georgia,serif;font-size:16px;font-weight:700;letter-spacing:-0.01em;line-height:1.2}
+.lab-name .bullet{width:8px;height:8px;border-radius:50%;background:var(--lab-terra);flex-shrink:0;margin-right:7px}
+.lab-name .lab{color:var(--lab-dark)} .lab-name .best{color:var(--lab-terra)} .lab-name .ia{color:var(--lab-blue)}
+.lab-sub{color:var(--lab-gray);font-size:11px;font-weight:500;margin-top:1px;padding-left:15px;font-family:'Outfit',sans-serif}
+.site-footer{background:var(--navy);color:#cbd5e1;padding:30px 0 24px;margin-top:40px}
+.footer-inner{max-width:1160px;margin:0 auto;padding:0 20px;text-align:center}
+.footer-quote{font-family:'Fraunces',serif;font-style:italic;font-size:1.1rem;color:#e0f2fe;margin-bottom:16px}
+.footer-lab{display:inline-block;background:var(--lab-cream);padding:10px 22px 9px;border-radius:12px;text-align:left;box-shadow:0 2px 8px rgba(0,0,0,.25)}
+.footer-lab .lab-name{font-size:17px}
+.footer-lab .lab-sub{font-size:12px}
+
+/* ---------- navegación ---------- */
+.tabs{position:sticky;top:0;z-index:50;background:#fff;border-bottom:1px solid var(--g200);box-shadow:0 2px 6px rgba(0,0,0,.05)}
+.tabs-inner{max-width:1160px;margin:0 auto;display:flex;overflow-x:auto;overflow-y:hidden;scrollbar-width:thin;position:relative;align-items:center}
+.tabs-inner::-webkit-scrollbar{height:4px}
+.tab-btn{flex:0 0 auto;padding:13px 14px;border:none;background:none;font-size:14px;font-weight:600;color:var(--g600);cursor:pointer;border-bottom:3px solid transparent;white-space:nowrap;transition:.15s}
+.tab-btn:hover{color:var(--navy);background:var(--g50)}
+.tab-btn.active{color:var(--blue);border-bottom-color:var(--blue)}
+.tab-btn .tn{display:inline-flex;width:20px;height:20px;border-radius:50%;background:var(--g200);color:var(--g700);font-size:11px;align-items:center;justify-content:center;margin-right:6px}
+.tab-btn.active .tn{background:var(--blue);color:#fff}
+.tab-btn.hecha .tn{background:var(--ok);color:#fff}
+.prog{flex:0 0 auto;margin-left:auto;padding:0 14px;font-size:12.5px;color:var(--g600);display:flex;align-items:center;gap:8px}
+.prog .bar{width:90px;height:6px;background:var(--g200);border-radius:99px;overflow:hidden}
+.prog .bar i{display:block;height:100%;background:var(--blue);width:0;transition:width .4s}
+.tab-content{display:none} .tab-content.active{display:block;animation:aparecer .35s ease}
+@keyframes aparecer{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+main{max-width:1160px;margin:0 auto;padding:22px 20px 40px}
+.pager{display:flex;justify-content:space-between;gap:12px;margin-top:30px;flex-wrap:wrap}
+.pager button{background:#fff;border:1.5px solid var(--g300);border-radius:10px;padding:10px 16px;font-weight:600;color:var(--navy);cursor:pointer}
+.pager button:hover{border-color:var(--blue);color:var(--blue)}
+
+/* ---------- banners y tarjetas ---------- */
+.banner{background:linear-gradient(135deg,var(--navy),#1a3a6e 60%,#234b8a);color:#e0f2fe;border-radius:var(--rl);padding:26px 28px;margin-bottom:22px;position:relative;overflow:hidden}
+.banner h2,.banner h1{color:#fff;margin-bottom:6px}
+.banner .kick{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:#7dd3fc;font-weight:700;margin-bottom:6px}
+.banner p{color:#dbeafe;max-width:72ch} .banner strong{color:#fff}
+.banner .wm{position:absolute;right:-10px;bottom:-30px;font-family:'Fraunces',serif;font-weight:700;font-size:6rem;color:rgba(255,255,255,.045);pointer-events:none;white-space:nowrap}
+.banner .meta{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.banner .chip{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);border-radius:999px;padding:3px 12px;font-size:12.5px;color:#fff}
+.card{background:#fff;border-radius:var(--rl);box-shadow:var(--sh);padding:22px 24px;margin-bottom:20px;border-top:4px solid var(--ej);position:relative;min-width:0}
+.card.soft{border-top-color:var(--g300)}
+.badge{display:inline-block;padding:3px 10px;border-radius:999px;font-size:12px;font-weight:700;letter-spacing:.02em}
+.badge.ej{background:var(--ej);color:#fff}
+.badge.ok{background:var(--ok-bg);color:var(--ok);border:1px solid var(--ok-bd)}
+.badge.gr{background:var(--g100);color:var(--g600)}
+.badge.no{background:var(--err-bg);color:var(--err);border:1px solid var(--err-bd)}
+.sec-title{display:flex;align-items:center;gap:12px;margin:26px 0 12px}
+.sec-title h2{font-size:1.4rem}
+.sec-title .ln{flex:1;height:1px;background:var(--g300)}
+.nota{font-size:.9rem;color:var(--g600)}
+.grid2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px;align-items:start}
+.grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+@media(max-width:860px){.grid2,.grid3{grid-template-columns:minmax(0,1fr)}}
+.grid2>*,.grid3>*{min-width:0}
+
+/* ---------- agenda ---------- */
+.agenda{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;margin:12px 0}
+.agenda .bl{background:#fff;border:1px solid var(--g200);border-radius:12px;padding:12px 14px;border-left:5px solid var(--blue);cursor:pointer}
+.agenda .bl:hover{border-color:var(--blue)}
+.agenda .bl.pr{border-left-color:var(--int)}
+.agenda .bl .n{font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;color:var(--g500);font-weight:700}
+.agenda .bl .t{font-family:'Fraunces',serif;font-weight:700;color:var(--navy);font-size:1.05rem;margin:2px 0}
+.agenda .bl .m{font-size:.85rem;color:var(--g600)}
+
+/* ---------- acordeones ---------- */
+.acc{border:1px solid var(--g200);border-radius:10px;margin:10px 0;background:#fff;overflow:hidden;scroll-margin-top:70px}
+.acc-h{display:flex;align-items:center;gap:10px;padding:11px 14px;cursor:pointer;user-select:none;font-weight:600;color:var(--navy);background:var(--g50)}
+.acc-h:hover{background:var(--g100)}
+.acc-h:focus-visible{outline:2px solid var(--ej);outline-offset:-2px}
+.acc-h .acc-t{flex:1;min-width:0;white-space:normal}
+.acc-h .acc-t .md{display:inline;font-size:1.06em;margin:0;padding:0}
+.acc-h .chev{margin-left:auto;transition:transform .2s;color:var(--g500);font-size:12px}
+.acc.open>.acc-h .chev{transform:rotate(180deg)}
+.acc-b{display:none;padding:12px 16px 14px;border-top:1px solid var(--g200)}
+.acc.open>.acc-b{display:block}
+.acc.teo>.acc-h{background:var(--def-bg);color:var(--def)}
+.acc.step>.acc-h{background:#fff}
+.acc.step>.acc-h .sn{background:var(--ej);color:#fff;width:24px;height:24px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0}
+.acc.adv>.acc-h{background:var(--int-bg);color:var(--int)}
+.tools{display:flex;gap:8px;flex-wrap:wrap;margin:6px 0 10px}
+.tools button,.btn{background:#fff;border:1.5px solid var(--g300);border-radius:8px;padding:6px 12px;font-size:13px;font-weight:600;color:var(--navy);cursor:pointer;font-family:inherit}
+.tools button:hover,.btn:hover{border-color:var(--blue);color:var(--blue)}
+.btn.primary{background:var(--blue);color:#fff;border-color:var(--blue)} .btn.primary:hover{background:var(--navy);border-color:var(--navy);color:#fff}
+.btn.on{background:var(--def-bg);border-color:var(--blue);color:var(--blue)}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.btn.sm{padding:4px 9px;font-size:12px}
+
+/* ---------- cajas ---------- */
+.box{border-radius:10px;padding:11px 15px;margin:10px 0;font-size:.97rem;border:1px solid var(--g200);background:#fff}
+.box .bt{font-weight:700;display:block;margin-bottom:3px;font-size:.9rem;letter-spacing:.02em}
+.box .fr{margin:0 .2em}
+.def{background:var(--def-bg);border:1px solid var(--def-bd);border-left:4px solid var(--def);color:#1e3a8a}
+.def .bt{color:var(--def)}
+.voz{background:var(--amb-bg);border:1px solid var(--amb-bd);border-left:4px solid var(--amb);color:#78350f}
+.voz .bt{color:var(--amb)}
+.err{background:var(--err-bg);border:1px solid var(--err-bd);border-left:4px solid var(--err);color:#881337}
+.err .bt{color:var(--err)}
+.okb{background:var(--ok-bg);border:1px solid var(--ok-bd);border-left:4px solid var(--ok);color:#064e3b}
+.okb .bt{color:var(--ok)}
+.int{background:var(--int-bg);border:1px solid var(--int-bd);border-left:4px solid var(--int);color:#3b0764}
+.int .bt{color:var(--int)}
+.idea{background:linear-gradient(135deg,#eef4ff,#f5f3ff);border:1px solid #c7d2fe;border-radius:12px;padding:14px 18px;margin:12px 0;font-size:1.02rem}
+.idea strong{color:var(--def)}
+.tbl{overflow-x:auto;overflow-y:hidden;margin:10px 0}
+.tbl table{border-collapse:collapse;width:100%;font-size:14px;background:#fff}
+.tbl th,.tbl td{border:1px solid var(--g200);padding:7px 10px;text-align:left;vertical-align:middle}
+.tbl th{background:var(--g100);font-weight:700;color:var(--navy)}
+.nota-modelo{font-size:.82rem;color:var(--g500);border:1px dashed var(--g300);border-radius:8px;padding:5px 10px;margin-top:8px;background:var(--g50)}
+.leyenda{display:flex;flex-wrap:wrap;gap:12px;font-size:13px;margin:6px 0}
+.leyenda > span.txt::before{display:none}
+.leyenda > span::before{content:'';display:inline-block;width:14px;height:4px;border-radius:2px;margin-right:5px;vertical-align:2px;background:var(--c)}
+.tres{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:12px 0}
+@media(max-width:860px){.tres{grid-template-columns:minmax(0,1fr)}}
+.tres .d{border-radius:12px;padding:12px 14px;border:1px solid var(--g200);background:#fff;border-top:4px solid var(--c)}
+.tres .d h4{color:var(--c);margin-bottom:4px;font-size:1.05rem}
+.tres .d p{font-size:.93rem;margin-bottom:.4em}
+
+/* ---------- laboratorios / explorador ---------- */
+.labo{background:#fff;border:1px solid var(--g200);border-radius:var(--rl);padding:18px 20px;margin:16px 0;box-shadow:var(--sh);min-width:0}
+.lab-head{display:flex;align-items:center;gap:10px;margin-bottom:8px;flex-wrap:wrap}
+.lab-head h3{font-size:1.1rem}
+.lab-tag{font-size:11px;letter-spacing:.1em;text-transform:uppercase;font-weight:700;color:#fff;background:var(--int);padding:2px 9px;border-radius:999px}
+.ex-grid{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:16px;align-items:start}
+.ex-grid>div{min-width:0}
+@media(max-width:900px){.ex-grid{grid-template-columns:minmax(0,1fr)}}
+.ex-col{display:flex;flex-direction:column;gap:10px;min-width:0}
+canvas.c2d{width:100%;max-width:100%;display:block;border:1px solid var(--g200);border-radius:8px;background:#fff;touch-action:none}
+canvas.c2d.click{cursor:crosshair}
+.plot3d{width:100%;height:380px;border:1px solid var(--g200);border-radius:8px;background:#fff;position:relative;overflow:hidden}
+.plot3d.chico{height:300px}
+.plot3d .noplot{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;text-align:center;padding:20px;color:var(--g600);font-size:.95rem;background:var(--g50)}
+.ctrl{display:flex;flex-direction:column;gap:8px}
+.ctrl label{font-size:13.5px;font-weight:600;color:var(--g700);display:flex;flex-direction:column;gap:2px}
+.ctrl label .lv{display:flex;justify-content:space-between;gap:8px}
+.ctrl label .val{font-family:var(--mathfont);color:var(--blue);font-weight:400}
+.ctrl input[type=range]{width:100%;accent-color:var(--blue)}
+.ctrl input[type=range].th{accent-color:var(--dir)}
+.ctrl .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.ctrl select,.ctrl input[type=number],.ctrl input[type=text]{font-family:inherit;font-size:14px;padding:5px 8px;border:1px solid var(--g300);border-radius:6px;max-width:100%}
+.seg{display:inline-flex;border:1.5px solid var(--g300);border-radius:8px;overflow:hidden;flex-wrap:wrap}
+.seg button{border:none;background:#fff;padding:5px 11px;font-size:13px;font-weight:600;color:var(--g600);cursor:pointer}
+.seg button.on{background:var(--blue);color:#fff}
+.vistas{display:flex;flex-wrap:wrap;gap:5px;margin-top:6px}
+.vistas button{border:1px solid var(--g200);background:#fff;color:var(--g600);border-radius:6px;padding:3px 8px;font-size:12px;font-weight:600;cursor:pointer}
+.vistas button:hover{border-color:var(--blue);color:var(--blue)}
+.vistas button.on{background:var(--def-bg);border-color:var(--blue);color:var(--blue)}
+.lects{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:7px;margin:6px 0}
+.lect{background:var(--g50);border:1px solid var(--g200);border-radius:8px;padding:6px 10px;min-width:0}
+.lect .et{font-size:.74rem;color:var(--g500);font-weight:600;font-family:'Outfit',sans-serif}
+.lect .et .mi{font-size:1.12em;color:var(--g700)}
+.lect .v{font-size:1.05rem;font-weight:600;font-family:var(--mathfont);color:var(--g800)}
+.lect.grad{border-color:#fda4af;background:#fff1f2} .lect.grad .v{color:#9f1239}
+.lect.dir{border-color:#93c5fd;background:#eff6ff} .lect.dir .v{color:#1e40af}
+.lect.res{border-color:var(--blue);background:var(--def-bg);grid-column:span 2} .lect.res .v{color:var(--def);font-size:1.25rem}
+.lect.oc .v{color:var(--g400);letter-spacing:.1em}
+.aportes{margin:8px 0;border:1px solid var(--g200);border-radius:10px;overflow-x:auto;overflow-y:hidden;background:#fff}
+.aportes table{width:100%;border-collapse:collapse;font-size:14px}
+.aportes th{background:var(--g100);font-weight:700;color:var(--navy);padding:6px 9px;text-align:left;font-size:12.5px}
+.aportes td{padding:6px 9px;border-top:1px solid var(--g200);vertical-align:middle}
+.aportes td.num{font-family:var(--mathfont);text-align:right;white-space:nowrap}
+.aportes tr.tot td{background:var(--def-bg);font-weight:700;border-top:2px solid var(--def-bd)}
+.aportes,.tbl{scrollbar-width:none} .aportes::-webkit-scrollbar,.tbl::-webkit-scrollbar{display:none}
+.interp{font-size:.93rem;color:var(--g700);background:#fff;border:1px solid var(--g200);border-radius:8px;padding:8px 12px;margin-top:6px}
+.descubrir{background:var(--int-bg);border:1px solid var(--int-bd);border-radius:10px;padding:10px 14px;margin:8px 0}
+.descubrir .bt{font-weight:700;color:var(--int);display:block;margin-bottom:4px;font-size:.9rem}
+.descubrir p{font-size:.95rem;margin-bottom:.5em}
+
+/* ---------- ejercicios ---------- */
+.q{background:#fff;border:1px solid var(--g200);border-radius:12px;padding:16px 18px;margin:12px 0;min-width:0}
+.q .qn{font-weight:700;color:var(--navy);margin-bottom:6px;display:flex;gap:8px;align-items:flex-start;flex-wrap:wrap}
+.q .qn .k{display:inline-flex;min-width:26px;height:26px;border-radius:7px;background:var(--ej);color:#fff;font-size:12.5px;align-items:center;justify-content:center;flex-shrink:0;padding:0 6px}
+.q .enq{font-weight:500;color:var(--g800)}
+.opts{display:grid;gap:6px;margin:8px 0}
+.opt{display:flex;gap:10px;align-items:flex-start;padding:8px 12px;border:1.5px solid var(--g200);border-radius:8px;cursor:pointer;background:#fff;text-align:left;font-size:.96rem;font-family:inherit;color:var(--g800)}
+.opt:hover:not(:disabled){border-color:var(--blue)}
+.opt .k{font-weight:700;color:var(--g500);flex-shrink:0}
+.opt.right{border-color:var(--ok);background:var(--ok-bg)} .opt.wrong{border-color:var(--err);background:var(--err-bg)}
+.opt:disabled{cursor:default}
+.numin{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:8px 0}
+.numin input{font-family:var(--mathfont);font-size:15px;padding:6px 9px;border:1.5px solid var(--g300);border-radius:8px;width:120px;max-width:100%}
+.numin input:disabled{background:var(--g50)}
+.numin .lb{font-family:var(--mathfont);font-size:1.05em}
+.fb{display:none;margin-top:8px;padding:9px 12px;border-radius:8px;font-size:.95rem}
+.fb.show{display:block;animation:aparecer .3s}
+.fb.ok{background:var(--ok-bg);border:1px solid var(--ok-bd);color:#064e3b}
+.fb.no{background:var(--err-bg);border:1px solid var(--err-bd);color:#881337}
+.fb.info{background:var(--def-bg);border:1px solid var(--def-bd);color:#1e3a8a}
+.resol{display:none;margin-top:10px;border-top:1px dashed var(--g300);padding-top:8px}
+.resol.show{display:block}
+.pred-btns{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+
+/* ---------- visor modal ---------- */
+.visor{position:fixed;inset:0;background:rgba(15,34,68,.55);z-index:200;display:none;align-items:center;justify-content:center;padding:14px}
+.visor.show{display:flex}
+.visor-box{background:#fff;border-radius:14px;max-width:1080px;width:100%;max-height:94vh;overflow:auto;padding:16px 18px 18px;position:relative;box-shadow:0 20px 60px rgba(0,0,0,.35)}
+.visor-box .cerrar{position:absolute;right:10px;top:8px;border:none;background:var(--g100);border-radius:8px;padding:5px 10px;font-weight:700;cursor:pointer;color:var(--g700)}
+.reporte{white-space:pre-wrap;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12.5px;color:var(--g700);line-height:1.5;background:var(--g50);border:1px solid var(--g200);border-radius:8px;padding:10px 12px}
+.esencial td:first-child{font-weight:600;color:var(--navy);width:30%}
+.datos{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:12px 0}
+@media(max-width:640px){.datos{grid-template-columns:minmax(0,1fr)}}
+.datos .d{background:#fff;border:1px solid var(--g200);border-radius:10px;padding:8px 12px}
+.datos .et{font-size:.7rem;font-weight:700;color:var(--g500);text-transform:uppercase;letter-spacing:.06em}
+.datos input{width:100%;border:0;border-bottom:1px solid var(--g300);outline:none;padding:3px 0;background:transparent;font-family:inherit;font-size:15px}
+.datos input:focus{border-color:var(--blue)}
+button:focus-visible,input:focus-visible,select:focus-visible,canvas:focus-visible{outline:3px solid var(--blue);outline-offset:2px}
+.errores td:first-child{font-weight:600;color:var(--err)}
+
+@media(max-width:640px){
+  .topbar-inner{justify-content:center;text-align:center}
+  main{padding:16px 14px 30px}
+  .card{padding:16px 14px}
+  .labo{padding:14px 12px}
+  .banner{padding:20px 18px}
+  .banner .wm{font-size:4rem}
+  .md{font-size:1.08em}
+  .tab-btn{padding:12px 10px;font-size:13px}
+  .plot3d,.plot3d.chico{height:300px}
+  .lects{grid-template-columns:1fr 1fr}
+  .lect.res{grid-column:span 2}
+  .prog{display:none}
+}
+@media print{
+  .tabs,.pager,.tools,.visor,.no-print{display:none!important}
+  .tab-content{display:block!important}
+  .acc-b,.resol{display:block!important}
+  .card,.acc,.q{break-inside:avoid}
+  body{background:#fff}
+}
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="topbar-inner">
+    <div class="brand">
+      <div>
+        <div class="brand-inspt">I·N·S·P·T &nbsp;·&nbsp; UTN</div>
+        <div class="brand-title">Máximo, mínimo y dirección nula · Unidad 3</div>
+        <div class="brand-sub">Análisis Matemático II · Tecnicatura Superior en Química</div>
+      </div>
+    </div>
+    <div class="lab-logo">
+      <div class="lab-name"><span class="bullet"></span><span class="lab">laboratorio</span><span class="best">best</span><span class="ia">-IA</span></div>
+      <div class="lab-sub">Prof. Ariel L. Cardozo Delgado</div>
+    </div>
+  </div>
+</header>
+<nav class="tabs" aria-label="Secciones"><div class="tabs-inner" id="tabs-inner"></div></nav>
+<main>
+
+<!-- ==================== 1 · INICIO ==================== -->
+<section id="sec-inicio" class="tab-content active" data-nombre="Inicio">
+  <div class="banner">
+    <div class="kick">laboratoriobest-IA · Análisis Matemático II · Unidad 3</div>
+    <h1>¿Hacia dónde muevo el proceso?</h1>
+    <p>Ya sabés calcular la derivada direccional: elegís una dirección y \(D_{\vec u}f=\nabla f\cdot\vec u\) dice cuánto cambia \(f\) por unidad de camino. Ahora damos vuelta la pregunta. En lugar de "¿cuánto cambia \(f\) si me muevo hacia allá?", preguntamos <strong>¿en qué dirección crece más rápido?</strong>, <strong>¿en cuál decrece más rápido?</strong> y <strong>¿en cuáles no cambia?</strong> Las tres respuestas salen del mismo vector: el gradiente.</p>
+    <div class="meta"><span class="chip">Girar la dirección</span><span class="chip">Las tres direcciones especiales</span><span class="chip">En el reactor</span><span class="chip">Práctica</span></div>
+    <div class="wm">∇f</div>
+  </div>
+  <div class="grid2">
+    <div class="card">
+      <h3>El recorrido, en cuatro bloques</h3>
+      <p class="nota">Tocá un bloque para ir directo.</p>
+      <div class="agenda">
+        <div class="bl" data-ir="giro"><div class="n">Bloque 1</div><div class="t">Girar la dirección</div><div class="m">Una dirección que gira alrededor del punto y la curva que traza la derivada direccional.</div></div>
+        <div class="bl" data-ir="direcciones"><div class="n">Bloque 2</div><div class="t">Las tres direcciones especiales</div><div class="m">Máximo crecimiento, máximo decrecimiento y derivada nula; el gradiente y las curvas de nivel.</div></div>
+        <div class="bl" data-ir="reactor"><div class="n">Bloque 3</div><div class="t">En el reactor</div><div class="m">Compensar una variable con la otra para que el proceso no cambie; el óptimo, donde el gradiente es nulo.</div></div>
+        <div class="bl pr" data-ir="practica"><div class="n">Bloque 4</div><div class="t">Práctica</div><div class="m">Diez ejercicios en tres niveles y dos desafíos, con corrección inmediata.</div></div>
+      </div>
+      <div class="datos">
+        <div class="d"><div class="et">Institución</div><input type="text" value="INSPT — UTN" readonly></div>
+        <div class="d"><div class="et">Materia</div><input type="text" value="Análisis Matemático II" readonly></div>
+        <div class="d"><div class="et">Estudiante</div><input type="text" id="inp-estudiante" placeholder="Escribí tu nombre"></div>
+      </div>
+      <p class="nota">El progreso (ejercicios, predicciones) queda guardado en este navegador. La página sirve también para repasar después de la clase.</p>
+    </div>
+    <div class="card soft">
+      <h3>Para empezar: un sensor en un recipiente</h3>
+      <p>En un recipiente de 1 m × 1 m la concentración \(C(x,y)\) de un soluto no es uniforme: hay un foco donde se disolvió el sólido (modelo didáctico simplificado). Un sensor está en el punto P. Mirá el mapa de colores y <strong>apostá</strong>: si movés el sensor un poco, ¿en cuál de las ocho direcciones la lectura sube más rápido?</p>
+      <div id="pred-inicio"></div>
+      <div class="idea">Para responder bien no hace falta ninguna cuenta: alcanza con leer el mapa. Lo que vamos a hacer en esta página es convertir esa lectura en un <strong>cálculo</strong> que funcione aunque no haya mapa.</div>
+    </div>
+  </div>
+  <div class="pager"><span></span><button class="btn primary" data-ir="giro">Comenzar: girar la dirección →</button></div>
+</section>
+
+<!-- ==================== 2 · GIRAR LA DIRECCIÓN ==================== -->
+<section id="sec-giro" class="tab-content" data-nombre="Girar la dirección">
+  <div class="banner"><div class="kick">Bloque 1</div><h2>Una dirección que gira y una curva que aparece</h2><p>En un punto fijo, la derivada direccional depende solo de hacia dónde miro. Si la dirección da la vuelta completa, ¿qué valores toma la derivada? Antes de cualquier fórmula, vas a trazar esa curva vos.</p></div>
+
+  <div class="labo">
+    <div class="lab-head"><span class="lab-tag">Explorador</span><h3>Girar alrededor del punto</h3></div>
+    <div class="descubrir"><span class="bt">Qué hacer</span>
+      <p>1. Elegí una función o un modelo espacial y ubicá el punto P con los deslizadores. 2. Mové el deslizador del ángulo \(\theta\): la flecha azul es la dirección unitaria \(\vec u=(\cos\theta\,;\,\sen\theta)\) y la lectura \(D_{\vec u}f(P)\) cambia con ella. Cada posición por la que pasás deja un punto en el gráfico de la derecha. 3. Recorré la vuelta completa y, cuando creas haber encontrado la dirección en la que la derivada es <strong>máxima</strong>, dejá el deslizador ahí y registrala. Recién después aparece el gradiente.</p>
+    </div>
+    <div id="ex-giro"></div>
+  </div>
+
+  <div class="card">
+    <h3>Por qué sale un coseno</h3>
+    <div class="grid2">
+      <div>
+        <p>La fórmula de la derivada direccional es un producto escalar, y todo producto escalar se puede escribir con el ángulo entre los dos vectores. Si \(\varphi\) es el ángulo entre la dirección \(\vec u\) y el gradiente \(\nabla f(P)\):</p>
+        \[D_{\vec u}f(P)=\nabla f(P)\cdot\vec u=\|\nabla f(P)\|\,\|\vec u\|\cos\varphi=\|\nabla f(P)\|\cos\varphi,\]
+        <p>porque \(\|\vec u\|=1\). En el punto P el gradiente es un vector fijo: su módulo es un número fijo. Lo único que cambia al girar la dirección es \(\cos\varphi\). Por eso la curva que trazaste es un coseno: <strong>estirado</strong> por el factor \(\|\nabla f(P)\|\) y <strong>corrido</strong> de modo que su máximo cae justo en la dirección del gradiente.</p>
+        <div class="box def"><span class="bt">Derivada direccional y ángulo con el gradiente</span>Si \(f\) es diferenciable en \(P\), \(\nabla f(P)\neq\vec 0\) y \(\vec u\) es unitario,
+          \[D_{\vec u}f(P)=\|\nabla f(P)\|\cos\varphi,\qquad \varphi=\text{ángulo entre }\vec u\text{ y }\nabla f(P).\]
+          Vale cuando las dos variables se miden con la misma unidad (metros y metros, o números sin unidad): ahí "ángulo" significa algo. En el plano \(T\)–\(C\) del reactor la fórmula del producto escalar sigue valiendo, pero el ángulo no; es el tema del bloque 3.</div>
+      </div>
+      <div>
+        <div class="idea">Todo lo que puede pasar al girar la dirección está en esa curva: la derivada sube hasta \(\|\nabla f(P)\|\), baja hasta \(-\|\nabla f(P)\|\) y pasa <strong>dos veces por cero</strong>. Ninguna dirección da más que el módulo del gradiente, y ninguna da menos que su opuesto.</div>
+        <div class="box voz"><span class="bt">Leído en la placa calefactora</span>Si en un punto de la placa \(\|\nabla T\|=26\ \text{K}\cdot\text{m}^{-1}\), ese número es el <em>techo</em>: no existe dirección en la que la temperatura suba más de 26 K por cada metro recorrido. Y en la dirección opuesta baja exactamente 26 K por metro. Eso no significa que medio metro más allá haya 13 K de diferencia: la fórmula da el <em>ritmo</em> en P, no el cambio en un recorrido largo. Para un paso corto \(h\), \(\Delta T\approx D_{\vec u}T\cdot h\).</div>
+        <div class="box err"><span class="bt">Lo que NO dice la curva</span>El mínimo de la curva no es cero: es \(-\|\nabla f(P)\|\). "La derivada direccional mínima es 0" es el error más repetido del tema. Cero es lo que vale en las dos direcciones perpendiculares al gradiente, que no son ni el máximo ni el mínimo.</div>
+      </div>
+    </div>
+  </div>
+  <div class="sec-title"><h2>Comprobación</h2><div class="ln"></div></div>
+  <div id="ej-giro"></div>
+  <div class="pager"><button class="btn" data-ir="inicio">← Inicio</button><button class="btn primary" data-ir="direcciones">Bloque 2: las tres direcciones especiales →</button></div>
+</section>
+
+<!-- ==================== 3 · LAS TRES DIRECCIONES ==================== -->
+<section id="sec-direcciones" class="tab-content" data-nombre="Tres direcciones">
+  <div class="banner"><div class="kick">Bloque 2</div><h2>Máximo, mínimo y dirección nula</h2><p>De la curva del coseno salen las tres respuestas de la página, y las tres se escriben con el gradiente. Después, una consecuencia geométrica que vas a usar en toda la materia: el gradiente es perpendicular a las curvas de nivel.</p></div>
+
+  <div class="card">
+    <h3>Las tres consecuencias</h3>
+    <div class="box def"><span class="bt">Teorema (direcciones especiales)</span>Si \(f\) es diferenciable en \(P\) y \(\nabla f(P)\neq\vec 0\), entonces para \(\vec u\) unitario:
+      <ol style="margin-top:6px">
+        <li>El <strong>valor máximo</strong> de \(D_{\vec u}f(P)\) es \(\|\nabla f(P)\|\), y se alcanza cuando \(\varphi=0\): en la dirección y sentido del gradiente, \(\vec u_{\text{máx}}=\dfrac{\nabla f(P)}{\|\nabla f(P)\|}\). Es la dirección en la que \(f\) <strong>crece más rápido</strong>.</li>
+        <li>El <strong>valor mínimo</strong> es \(-\|\nabla f(P)\|\), cuando \(\varphi=\pi\): sentido opuesto al gradiente, \(\vec u_{\text{mín}}=-\vec u_{\text{máx}}\). Es la dirección en la que \(f\) <strong>decrece más rápido</strong>.</li>
+        <li>La derivada direccional es <strong>nula</strong> cuando \(\varphi=\dfrac{\pi}{2}\): en las dos direcciones perpendiculares al gradiente, \(\vec u_{\text{nula}}=\pm\dfrac{(-f_y\,;\,f_x)}{\|\nabla f(P)\|}\). En ellas \(f\) <strong>no cambia</strong> a primer orden: son las tangentes a la curva de nivel que pasa por \(P\).</li>
+      </ol>
+    </div>
+    <div class="tres">
+      <div class="d" style="--c:var(--grad)"><h4>Crece más rápido</h4><p>Dirección: el gradiente, normalizado. Valor: \(\|\nabla f(P)\|=\sqrt{f_x^{\,2}+f_y^{\,2}}\).</p><p class="nota">El vocabulario del TP para esto: "derivada direccional máxima", "máxima razón de cambio", "dirección de mayor crecimiento". Piden el mismo número y el mismo versor.</p></div>
+      <div class="d" style="--c:var(--min)"><h4>Decrece más rápido</h4><p>Dirección: la opuesta al gradiente. Valor: \(-\|\nabla f(P)\|\).</p><p class="nota">"Dirección en la que decrece más rápidamente", "derivada direccional mínima". El valor es negativo, no cero.</p></div>
+      <div class="d" style="--c:var(--nula)"><h4>No cambia</h4><p>Dos direcciones, perpendiculares al gradiente y opuestas entre sí. Valor: 0.</p><p>Son tres maneras de decir lo mismo: derivada direccional nula es que \(f\) <em>no cambia</em> a primer orden; no cambiar es <em>moverse por la curva de nivel</em> que pasa por \(P\); y por eso esas direcciones son las <em>tangentes a la curva de nivel</em>, que resultan perpendiculares al gradiente.</p><p class="nota">"Dirección en la que la derivada direccional es nula". Son dos, no una: si \(\vec u\) es una dirección de derivada nula, \(-\vec u\) también lo es.</p></div>
+    </div>
+    <div class="box voz"><span class="bt">Un solo procedimiento para los tres pedidos</span>Gradiente en el punto → módulo → versor del gradiente (máximo) → su opuesto (mínimo) → un vector perpendicular al gradiente, normalizado, y su opuesto (nulas): una forma directa de conseguirlo es <strong>intercambiar las coordenadas y cambiarle el signo a una</strong>, \((f_x\,;\,f_y)\to(-f_y\,;\,f_x)\), porque \(f_x\cdot(-f_y)+f_y\cdot f_x=0\). Como ese vector tiene el mismo módulo que el gradiente, normalizarlo no pide ninguna raíz nueva: \(\vec u_{\text{nula}}=\pm\dfrac{(-f_y\,;\,f_x)}{\|\nabla f\|}\). Cualquier múltiplo también da cero; se normaliza por convención, para que "dirección" signifique siempre versor, como en el máximo y el mínimo, donde sí es imprescindible → verificar con el producto escalar: \(\nabla f\cdot\vec u_{\text{máx}}=\|\nabla f\|\), \(\nabla f\cdot\vec u_{\text{nula}}=0\). Si el enunciado pide "la dirección", la respuesta es un <em>vector unitario</em>; el gradiente sin normalizar no es la respuesta.</div>
+  </div>
+
+  <div class="card">
+    <h3>Ejemplos paso a paso</h3>
+    <div id="ej-dir-ejemplos"></div>
+  </div>
+
+  <div class="card">
+    <h3>El gradiente es perpendicular a las curvas de nivel</h3>
+    <div class="grid2">
+      <div>
+        <p>Una curva de nivel es el conjunto de puntos donde \(f\) vale lo mismo: \(f(x,y)=k\). Si camino <em>a lo largo</em> de la curva de nivel, \(f\) no cambia, así que la derivada en la dirección tangente a la curva es cero. Pero acabamos de ver que las direcciones de derivada nula son exactamente las perpendiculares al gradiente. Conclusión:</p>
+        <div class="box def"><span class="bt">Gradiente y curva de nivel</span>Si \(\nabla f(P)\neq\vec 0\), el gradiente en \(P\) es <strong>perpendicular a la curva de nivel</strong> que pasa por \(P\), y apunta hacia los niveles más altos.
+          <p class="nota" style="margin:6px 0 0">Con tres variables pasa lo mismo un piso más arriba: \(\nabla f\) es normal a la <em>superficie</em> de nivel \(f(x,y,z)=k\).</p></div>
+        <p>Es la traducción geométrica de las tres direcciones: sobre el mapa de nivel, el gradiente atraviesa las curvas en ángulo recto hacia el color más claro; en sentido contrario, hacia el más oscuro; y a lo largo de la curva no se cambia de nivel.</p>
+        <div class="box voz"><span class="bt">Para qué sirve</span>Para leer un mapa de nivel sin calcular nada. Las curvas se dibujan a saltos fijos de \(f\) (en este recipiente, cada \(0{,}25\ \text{mol}\cdot\text{L}^{-1}\)). Ir de una curva a la siguiente por el camino más corto es moverse en la dirección del gradiente, así que \[\|\nabla f\|\approx\frac{\text{salto entre curvas}}{\text{distancia entre curvas}}.\] Donde las curvas están <strong>apretadas</strong> el gradiente es grande; donde están <strong>separadas</strong>, chico.<div id="fig-lectura" style="margin-top:8px"></div></div>
+      </div>
+      <div>
+        <div class="labo" style="margin:0">
+          <div class="lab-head"><span class="lab-tag">Explorador</span><h3>Campo de gradientes sobre el mapa</h3></div>
+          <p class="nota">Tocá cualquier punto del mapa: se dibuja la curva de nivel que pasa por ahí, el gradiente en rojo y la tangente a la curva en verde. Activá "todas las flechas" para ver el gradiente en una grilla de puntos.</p>
+          <div id="ex-campo"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="sec-title"><h2>Comprobación</h2><div class="ln"></div></div>
+  <div id="ej-dir"></div>
+  <div class="pager"><button class="btn" data-ir="giro">← Girar la dirección</button><button class="btn primary" data-ir="reactor">Bloque 3: en el reactor →</button></div>
+</section>
+
+<!-- ==================== 4 · EN EL REACTOR ==================== -->
+<section id="sec-reactor" class="tab-content" data-nombre="En el reactor">
+  <div class="banner"><div class="kick">Bloque 3</div><h2>En el reactor: compensar y gradiente nulo</h2><p>Dos usos de la dirección nula en el proceso. El primero es una decisión concreta: si una variable se mueve, cuánto mover la otra para que el resultado no cambie. El segundo es el punto donde no hay dirección especial porque el gradiente se anula: el óptimo.</p></div>
+
+  <div class="box voz"><span class="bt">Una advertencia antes de empezar</span>En la placa y en el recipiente los dos ejes se miden en metros, y por eso tenía sentido hablar de ángulos y de \(\|\nabla f\|\) como "cambio por metro". En el plano \(T\)–\(C\) del reactor los ejes miden cosas distintas (grados y moles por litro), así que acá <strong>no se habla de ángulos ni de módulo del gradiente</strong>. Lo que se usa es la derivada según un vector, \(D_{\vec v}f=\nabla f\cdot\vec v=f_T\,\Delta T+f_C\,\Delta C\), para cambios concretos: su signo dice si el proceso mejora o empeora, y la ecuación \(D_{\vec v}f=0\) dice cómo compensar.</div>
+
+<div class="labo">
+    <div class="lab-head"><span class="lab-tag">Explorador</span><h3>Un paso en el reactor</h3></div>
+    <p>Elegí un modelo y un cambio \(\vec v=(\Delta T\,;\,\Delta C)\) con los deslizadores. La tabla descompone \(D_{\vec v}f\) en el aporte de cada variable y dice si con ese paso el proceso mejora o empeora. La línea verde es la dirección de cambio nulo: los pasos que la siguen dejan \(f\) igual a primer orden. La última fila de la tabla te dice, para el \(\Delta T\) que elegiste, cuánto \(\Delta C\) haría falta para compensarlo.</p>
+    <div id="ex-reactor"></div>
+  </div>
+
+  <div class="grid2">
+    <div class="card">
+      <h3>La dirección en la que no cambia: compensar</h3>
+      <p>Pedir "la dirección en la que \(f\) no cambia" en el reactor es una pregunta de proceso muy concreta: si una variable se mueve, ¿cuánto hay que mover la otra para que el resultado quede igual? Es la ecuación \(D_{\vec v}f=0\).</p>
+      <div id="ej-comp-ejemplos"></div>
+    </div>
+    <div class="card">
+      <h3>Gradiente nulo: ninguna dirección es especial</h3>
+      <p>En el óptimo del rendimiento, \((60\,;\,1{,}5)\), las dos derivadas parciales valen cero: \(\nabla R=\vec 0\). Entonces \(D_{\vec v}R=\vec 0\cdot\vec v=0\) <strong>en toda dirección</strong>: la curva del coseno es una línea plana y el versor \(\dfrac{\nabla R}{\|\nabla R\|}\) ni siquiera está definido. No hay dirección de máximo crecimiento porque, a primer orden, no hay crecimiento.</p>
+      <p>Eso pasa en la cima de una montaña, pero también en el fondo de un valle y en el centro de una silla de montar. Por eso <strong>gradiente nulo</strong> dice "punto estacionario", no "máximo": para distinguirlos hace falta información de segundo orden, que es tema de la Unidad 4.</p>
+      <div class="tools"><button class="btn sm" data-visor='{"m":"parab","a":0,"b":0,"rev":1}'>Ver: paraboloide en el origen</button><button class="btn sm" data-visor='{"m":"silla","a":0,"b":0,"rev":1}'>Ver: silla en el origen</button><button class="btn sm" data-visor='{"m":"gauss","a":0,"b":0,"rev":1}'>Ver: campana en la cima</button><button class="btn sm" data-visor='{"m":"recip","a":0.308006,"b":0.4,"rev":1}'>Ver: el recipiente en su máximo</button></div>
+      <div class="box err"><span class="bt">Dos situaciones distintas: derivada direccional cero versus gradiente nulo</span><strong>Derivada direccional cero</strong>: un <em>número</em>. En un punto con gradiente no nulo, \(D_{\vec u}f\) vale cero en las dos direcciones perpendiculares al gradiente, y solo en esas. <strong>Gradiente nulo</strong>: un <em>vector</em>, \(\nabla f=\vec 0\). Entonces la derivada direccional vale cero en <em>todas</em> las direcciones, porque \(\vec 0\cdot\vec u=0\) para cualquier \(\vec u\).</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Errores frecuentes</h3>
+    <div class="tbl"><table class="errores"><thead><tr><th>Error</th><th>Por qué ocurre</th><th>Cómo detectarlo</th><th>Cómo corregirlo</th></tr></thead><tbody>
+      <tr><td>Dar el gradiente como "la dirección"</td><td>El gradiente apunta bien, así que parece la respuesta.</td><td>La respuesta a "dirección" tiene módulo distinto de 1.</td><td>Dividir por \(\|\nabla f(P)\|\); comprobar que el versor tiene módulo 1.</td></tr>
+      <tr><td>"El mínimo es 0"</td><td>Se confunde el mínimo de la curva con sus ceros.</td><td>Si tu "mínimo" es 0 y \(\nabla f\neq\vec 0\), la dirección opuesta al gradiente da un valor negativo: ese es el mínimo.</td><td>Mínimo \(=-\|\nabla f(P)\|\) en la dirección opuesta al gradiente; cero es en las perpendiculares.</td></tr>
+      <tr><td>Una sola dirección nula</td><td>Se calcula un vector perpendicular y se olvida el opuesto.</td><td>Si \(\vec u\) da cero, \(-\vec u\) también: falta uno.</td><td>Escribir \(\pm\vec u_{\text{nula}}\), las dos tangentes a la curva de nivel.</td></tr>
+      <tr><td>Confundir derivada direccional cero con gradiente nulo</td><td>Las dos frases llevan "nulo", pero una habla de un número y la otra de un vector.</td><td>¿La derivada es cero en <em>una</em> dirección o en <em>todas</em>?</td><td>Derivada cero en una dirección: \(\nabla f\neq\vec 0\) y \(\vec u\perp\nabla f\). Gradiente nulo: punto estacionario.</td></tr>
+      <tr><td>Leer ángulos en el plano \(T\)–\(C\)</td><td>La fórmula del coseno se aplica sin mirar las unidades.</td><td>Las componentes del gradiente tienen unidades distintas.</td><td>Trabajar con \(D_{\vec v}f=\nabla f\cdot\vec v\) para cambios concretos: signo, comparación, \(D_{\vec v}f=0\).</td></tr>
+      <tr><td>Creer que \(D_{\vec u}f=0\) implica extremo</td><td>Se traslada "derivada cero" de Análisis I.</td><td>¿Es cero en una dirección o el gradiente es nulo?</td><td>En una dirección: solo se está caminando por la curva de nivel. Extremo exige \(\nabla f=\vec 0\), y ni eso alcanza.</td></tr>
+    </tbody></table></div>
+  </div>
+  <div class="sec-title"><h2>Comprobación</h2><div class="ln"></div></div>
+  <div id="ej-reactor"></div>
+  <div class="pager"><button class="btn" data-ir="direcciones">← Tres direcciones</button><button class="btn primary" data-ir="practica">Bloque 4: práctica →</button></div>
+</section>
+
+<!-- ==================== 5 · PRÁCTICA ==================== -->
+<section id="sec-practica" class="tab-content" data-nombre="Práctica">
+  <div class="banner"><div class="kick">Bloque 4</div><h2>Práctica</h2><p>Diez ejercicios en tres niveles, más dos desafíos. Reconocer, calcular, interpretar. Cada respuesta se corrige al instante; la resolución y el gráfico se habilitan después del primer intento.</p></div>
+  <div class="seg" id="prac-tabs"></div>
+  <div id="prac-panel" style="margin-top:12px"></div>
+  <div class="sec-title"><h2>Lo esencial</h2><div class="ln"></div></div>
+  <div class="card"><div class="tbl"><table class="esencial"><tbody>
+    <tr><td>Al girar la dirección</td><td>\(D_{\vec u}f(P)=\|\nabla f(P)\|\cos\varphi\), con \(\varphi\) el ángulo entre \(\vec u\) y \(\nabla f(P)\). Vale con \(f\) diferenciable, \(\nabla f(P)\neq\vec 0\), \(\vec u\) unitario y ejes con la misma unidad.</td></tr>
+    <tr><td>Crece más rápido</td><td>En \(\vec u_{\text{máx}}=\dfrac{\nabla f(P)}{\|\nabla f(P)\|}\); valor \(\|\nabla f(P)\|\). "Máxima razón de cambio" es ese número; "la dirección" es ese versor.</td></tr>
+    <tr><td>Decrece más rápido</td><td>En \(-\vec u_{\text{máx}}\); valor \(-\|\nabla f(P)\|\), no cero.</td></tr>
+    <tr><td>No cambia</td><td>En \(\pm\dfrac{(-f_y\,;\,f_x)}{\|\nabla f(P)\|}\): dos direcciones, tangentes a la curva de nivel. Por eso \(\nabla f\perp\) curvas de nivel.</td></tr>
+    <tr><td>En el reactor</td><td>Ejes con unidades distintas: sin ángulos ni módulo. Se usa \(D_{\vec v}f=\nabla f\cdot\vec v\) para cambios concretos: su signo, y la ecuación \(D_{\vec v}f=0\) para compensar una variable con la otra.</td></tr>
+    <tr><td>Gradiente nulo</td><td>\(D_{\vec v}f=0\) en toda dirección: punto estacionario. No dice máximo ni mínimo (silla).</td></tr>
+  </tbody></table></div></div>
+  <div class="sec-title"><h2>Para la próxima clase</h2><div class="ln"></div></div>
+  <div class="card"><p>Si en el punto de operación el gradiente no es nulo, siempre hay una dirección en la que el rendimiento mejora: el proceso no está en su mejor punto. Entonces el mejor punto, si existe adentro del dominio, tiene que tener gradiente nulo. Encontrar esos puntos y decidir si son máximos, mínimos o sillas es el tema de extremos de la Unidad 4; y la herramienta para decidirlo, las derivadas segundas.</p></div>
+  <div class="sec-title"><h2>Tu recorrido</h2><div class="ln"></div></div>
+  <div class="card">
+    <div class="tools no-print"><button class="btn primary" id="btn-reporte">Generar reporte</button><button class="btn" id="btn-imprimir">Imprimir o guardar PDF</button><button class="btn" id="btn-reiniciar">Borrar mi progreso</button></div>
+    <pre class="reporte" id="texto-reporte">Presioná "Generar reporte".</pre>
+  </div>
+  <div class="pager"><button class="btn" data-ir="reactor">← En el reactor</button><span></span></div>
+</section>
+
+</main>
+
+<div class="visor" id="visor" role="dialog" aria-modal="true" aria-label="Ver en el gráfico">
+  <div class="visor-box"><button class="cerrar" id="visor-cerrar">✕ Cerrar</button><div id="visor-cont" style="margin-top:22px"></div></div>
+</div>
+
+<footer class="site-footer">
+  <div class="footer-inner">
+    <div class="footer-quote">"La matemática no exige genios, exige constancia."</div>
+    <div class="footer-lab">
+      <div class="lab-name"><span class="bullet"></span><span class="lab">laboratorio</span><span class="best">best</span><span class="ia">-IA</span></div>
+      <div class="lab-sub">Prof. Ariel L. Cardozo Delgado</div>
+    </div>
+  </div>
+</footer>
+<script>
+/* ===== 10_core.js ===== */
+/* ================================================================
+   NÚCLEO · estado, matemática en CSS (STIX Two Text), utilidades,
+   modelos, cálculo de direcciones y autotest
+   ================================================================ */
+'use strict';
+const CLAVE = 'lab_u3_max_min_nula_v1';
+const estadoInicial = () => ({ estudiante:'', visitadas:{}, ejercicios:{}, predicciones:{}, descubierto:{} });
+let E = estadoInicial();
+function guardar(){ try{ localStorage.setItem(CLAVE, JSON.stringify(E)); }catch(e){} }
+function cargar(){ try{ const c = localStorage.getItem(CLAVE); if(c) E = Object.assign(estadoInicial(), JSON.parse(c)); }catch(e){ E = estadoInicial(); } }
+const $ = id => document.getElementById(id);
+const $$ = (s, r) => Array.from((r||document).querySelectorAll(s));
+const clamp = (v,a,b) => Math.max(a, Math.min(b, v));
+const lin = (n, a, b) => Array.from({length:n}, (_,i) => a + (b-a)*i/(n-1));
+const signo = v => Math.abs(v) < 1e-9 ? 0 : (v > 0 ? 1 : -1);
+const DEG = Math.PI/180;
+const normAng = a => { a = a % 360; if(a < 0) a += 360; return a; };
+const difAng = (a, b) => { let d = normAng(a - b); if(d > 180) d = 360 - d; return d; };
+
+/* ---------- formato numérico con coma decimal ---------- */
+const fmt = (v, d) => {
+  if(!isFinite(v)) return '—';
+  if(d === undefined){ const a = Math.abs(v); d = a === 0 ? 0 : a >= 100 ? 1 : a >= 10 ? 2 : a >= 1 ? 3 : a >= 0.01 ? 4 : a >= 0.001 ? 5 : a >= 0.0001 ? 6 : 7; }
+  let s = (Math.round(v * 10**d) / 10**d).toFixed(d); if(s.includes('.')) s = s.replace(/\.?0+$/, '');
+  if(s === '-0' || s === '') s = '0';
+  return s.replace('-', '−').replace('.', ',');
+};
+const fmtT = (v, d) => fmt(v, d).replace('−','-').replace(',', '{,}');
+
+/* ================================================================
+   Conversor mini-TeX → HTML (subconjunto): \frac \dfrac \tfrac \sqrt
+   \vec \text \mathrm ^ _ \left( \right) operadores y símbolos.
+   ================================================================ */
+const TEX_SYM = {
+  cdot:' · ', times:' × ', to:' → ', rightarrow:' → ', Rightarrow:' ⇒ ', Longrightarrow:' ⟹ ', Leftrightarrow:' ⇔ ', mapsto:' ↦ ',
+  approx:' ≈ ', le:' ≤ ', leq:' ≤ ', ge:' ≥ ', geq:' ≥ ', ne:' ≠ ', neq:' ≠ ', infty:'∞', partial:'∂', nabla:'∇', pm:' ± ',
+  ldots:'…', cdots:'⋯', circ:'∘', degree:'°', in:' ∈ ', perp:' ⊥ ', quad:'&ensp;', qquad:'&emsp;', ell:'ℓ', prime:'′',
+  Delta:'Δ', pi:'π', Omega:'Ω', Sigma:'Σ', langle:'⟨', rangle:'⟩', mid:' | ', colon:': '
+};
+const TEX_GREEK_IT = { alpha:'α', beta:'β', gamma:'γ', theta:'θ', rho:'ρ', omega:'ω', lambda:'λ', mu:'μ', phi:'φ', varphi:'φ', sigma:'σ', tau:'τ', epsilon:'ε', varepsilon:'ε', delta:'δ', eta:'η', xi:'ξ', kappa:'κ', nu:'ν', psi:'ψ', chi:'χ', zeta:'ζ' };
+const TEX_OPS = ['sin','cos','tan','sen','ln','log','exp','lim','max','min','arctan','arcsen','arcsin','sec','det'];
+const SVG_RAD = '<svg viewBox="0 0 22 40" preserveAspectRatio="none" aria-hidden="true"><path d="M1 25 L6.5 22.5 L11.5 37 L21 1.2" fill="none" stroke="currentColor" stroke-width="1.35" vector-effect="non-scaling-stroke" stroke-linejoin="round" stroke-linecap="round"/></svg>';
+function texToHtml(src){
+  let i = 0; const s = src; let last = 'open';
+  const esc = c => c === '<' ? '&lt;' : c === '>' ? '&gt;' : c === '&' ? '&amp;' : c;
+  function readGroup(){ let depth = 0, j = i; for(; j < s.length; j++){ if(s[j] === '{') depth++; else if(s[j] === '}'){ depth--; if(depth === 0) break; } } const inner = s.slice(i+1, j); i = j+1; return inner; }
+  function readArg(){ while(s[i] === ' ') i++; if(s[i] === '{') return readGroup(); if(s[i] === '\\'){ let j = i+1; while(j < s.length && /[a-zA-Z]/.test(s[j])) j++; if(j === i+1) j++; const t = s.slice(i, j); i = j; return t; } const c = s[i]; i++; return c; }
+  function readOpt(){ while(s[i] === ' ') i++; if(s[i] !== '[') return null; const j = s.indexOf(']', i); const inner = s.slice(i+1, j); i = j+1; return inner; }
+  function textMode(t){ return '<span class="tx">' + t.replace(/\\,/g,' ').replace(/[<>&]/g, esc) + '</span>'; }
+  function sub(t, kind){ const saveI = i; const r = texToHtml(t); i = saveI; last = kind || 'atom'; return r; }
+  let out = '';
+  const push = (h, kind) => { out += h; last = kind; };
+  while(i < s.length){
+    const c = s[i];
+    if(c === ' ' || c === '\n' || c === '\t'){ i++; continue; }
+    if(c === '{'){ const g = readGroup(); push(sub(g), 'atom'); continue; }
+    if(c === '}'){ i++; continue; }
+    if(c === '^'){ i++; const a = readArg(); push('<sup>' + sub(a) + '</sup>', 'atom'); continue; }
+    if(c === '_'){ i++; const a = readArg(); push('<sub>' + sub(a) + '</sub>', 'atom'); continue; }
+    if(c === '\\'){
+      let j = i+1; while(j < s.length && /[a-zA-Z]/.test(s[j])) j++;
+      let cmd;
+      if(j === i+1){ cmd = s[i+1]; i += 2; } else { cmd = s.slice(i+1, j); i = j; }
+      if(cmd === ',' || cmd === ';' || cmd === ' ') { push('&thinsp;', last); continue; }
+      if(cmd === '!') continue;
+      if(cmd === '\\'){ push('<br>', 'open'); continue; }
+      if(cmd === '{' || cmd === '}' || cmd === '%' || cmd === '_' || cmd === '&' ){ push(esc(cmd), 'atom'); continue; }
+      if(cmd === '|'){ push('‖', 'atom'); continue; }
+      if(cmd === 'frac' || cmd === 'dfrac' || cmd === 'tfrac'){ const a = readArg(), b = readArg(); push(`<span class="fr${cmd==='tfrac'?' sm':''}"><span class="fn">${sub(a)}</span><span class="fd">${sub(b)}</span></span>`, 'atom'); continue; }
+      if(cmd === 'sqrt'){ const n = readOpt(); const a = readArg(); push(`<span class="rt">${n!==null?`<span class="ix">${sub(n)}</span>`:''}<span class="sg">${SVG_RAD}</span><span class="rd">${sub(a)}</span></span>`, 'atom'); continue; }
+      if(cmd === 'underbrace'){ const a = readArg(); let lbl=''; while(s[i]===' ') i++; if(s[i]==='_'){ i++; lbl = readArg(); } push(`<span class="ub"><span class="ubc">${sub(a)}</span><span class="ubl">${sub(lbl)}</span></span>`, 'atom'); continue; }
+      if(cmd === 'boxed'){ const a = readArg(); push(`<span class="boxed">${sub(a)}</span>`, 'atom'); continue; }
+      if(cmd === 'vec'){ const a = readArg(); push(`<span class="vec">${sub(a)}</span>`, 'atom'); continue; }
+      if(cmd === 'text' || cmd === 'textrm' || cmd === 'mbox'){ const a = readArg(); push(textMode(a), 'atom'); continue; }
+      if(cmd === 'mathrm' || cmd === 'operatorname'){ const a = readArg(); push('<span class="op">' + a.replace(/[<>&]/g, esc) + '</span>', 'atom'); continue; }
+      if(cmd === 'mathbb'){ const a = readArg(); push({R:'ℝ',N:'ℕ',Z:'ℤ',Q:'ℚ',C:'ℂ'}[a.trim()] || a, 'atom'); continue; }
+      if(cmd === 'left'){ const d = s[i]; i++;
+        let depth = 1, j = i; while(j < s.length){ if(s.startsWith('\\left', j)) depth++; if(s.startsWith('\\right', j)){ depth--; if(depth === 0) break; } j++; }
+        const inner = s.slice(i, j); i = j + 6; const dr = s[i]; i++;
+        const L = d === '.' ? '' : d === '\\' ? '' : d, R = dr === '.' ? '' : dr;
+        push(`<span class="par"><span class="pl">${L}</span>${sub(inner)}<span class="pr">${R}</span></span>`, 'atom'); continue; }
+      if(cmd === 'big' || cmd === 'Big' || cmd === 'bigl' || cmd === 'bigr' || cmd === 'Bigl' || cmd === 'Bigr' || cmd === 'displaystyle') continue;
+      if(cmd === 'lim'){ while(s[i] === ' ') i++; if(s[i] === '_'){ i++; const a = readArg(); push(`<span class="lim"><span class="op">lim</span><span class="lsub">${sub(a)}</span></span>`, 'atom'); } else push('<span class="op">lim</span>&thinsp;', 'atom'); continue; }
+      if(TEX_OPS.includes(cmd)){ push('<span class="op">' + cmd + '</span>&thinsp;', 'atom'); continue; }
+      if(TEX_SYM[cmd] !== undefined){ const v = TEX_SYM[cmd]; const isOp = v.startsWith(' '); push(v, isOp ? 'op' : 'atom'); continue; }
+      if(TEX_GREEK_IT[cmd]){ push('<i>' + TEX_GREEK_IT[cmd] + '</i>', 'atom'); continue; }
+      push(cmd, 'atom'); continue;
+    }
+    i++;
+    if(/[a-zA-Z]/.test(c)){ push('<i>' + c + '</i>', 'atom'); continue; }
+    if(/[0-9.]/.test(c)){ push(c, 'atom'); continue; }
+    if(c === '-'){ if(last === 'atom') push(' − ', 'op'); else push('−', 'open'); continue; }
+    if(c === '+'){ if(last === 'atom') push(' + ', 'op'); else push('+', 'open'); continue; }
+    if(c === '='){ push(' = ', 'op'); continue; }
+    if(c === '<' || c === '>'){ push(' ' + esc(c) + ' ', 'op'); continue; }
+    if(c === '('|| c === '['){ push(c, 'open'); continue; }
+    if(c === ')' || c === ']' || c === '|'){ push(c, 'atom'); continue; }
+    if(c === "'"){ push('′', 'atom'); continue; }
+    if(c === ','){ push(',', last === 'atom' ? 'atom' : 'open'); continue; }
+    if(c === ';'){ push(';&thinsp;', 'open'); continue; }
+    if(c === ':'){ push(' : ', 'op'); continue; }
+    push(esc(c), 'atom');
+  }
+  return out;
+}
+const mi = t => `<span class="mi">${texToHtml(t)}</span>`;
+function renderMath(root){
+  root = root || document.body;
+  const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, { acceptNode: n => (n.parentElement && !['SCRIPT','STYLE','TEXTAREA'].includes(n.parentElement.tagName) && /\\[\(\[]/.test(n.textContent)) ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT });
+  const nodos = []; let n; while((n = walker.nextNode())) nodos.push(n);
+  for(const nodo of nodos){
+    const txt = nodo.textContent;
+    const re = /\\\[([\s\S]*?)\\\]|\\\(([\s\S]*?)\\\)/g;
+    let m, lastIdx = 0; const frag = document.createDocumentFragment();
+    while((m = re.exec(txt))){
+      if(m.index > lastIdx) frag.appendChild(document.createTextNode(txt.slice(lastIdx, m.index)));
+      const span = document.createElement('span');
+      if(m[1] !== undefined){ span.className = 'md'; span.innerHTML = texToHtml(m[1]); }
+      else { span.className = 'mi'; span.innerHTML = texToHtml(m[2]); }
+      frag.appendChild(span); lastIdx = m.index + m[0].length;
+    }
+    if(lastIdx < txt.length) frag.appendChild(document.createTextNode(txt.slice(lastIdx)));
+    nodo.parentNode.replaceChild(frag, nodo);
+  }
+}
+
+/* ================================================================
+   Unidades (TeX, siempre fracciones apiladas) y derivadas de unidades
+   ================================================================ */
+const U = { gC:'{}^{\\circ}\\text{C}', kPa:'\\text{kPa}', K:'\\text{K}', m:'\\text{m}', molL:'\\tfrac{\\text{mol}}{\\text{L}}', mmolL:'\\tfrac{\\text{mmol}}{\\text{L}}', pct:'\\%' };
+function unidadDerivada(uz, ux){
+  if(!uz && !ux) return '';
+  if(!ux) return uz;
+  const partes = u => { const m = u.match(/^\\tfrac\{(.+)\}\{(.+)\}$/); return m ? [m[1], m[2]] : [u, '']; };
+  const tokens = t => t.split(/\\cdot\s*/).map(x=>x.trim()).filter(x=>x && x!=='1');
+  const [zn, zd] = partes(uz || '1'), [xn, xd] = partes(ux);
+  let num = [...tokens(zn), ...tokens(xd)], den = [...tokens(zd), ...tokens(xn)];
+  for(const t of [...num]){ const j = den.indexOf(t); if(j >= 0){ den.splice(j,1); num.splice(num.indexOf(t),1); } }
+  const agrupar = arr => { const cnt = new Map(); for(const t of arr) cnt.set(t, (cnt.get(t)||0)+1); return [...cnt.entries()].map(([t,n]) => n>1 ? `${t}^{${n}}` : t).join('\\cdot '); };
+  return `\\tfrac{${agrupar(num)||'1'}}{${agrupar(den)||'1'}}`;
+}
+
+/* ================================================================
+   MODELOS · tipo 'mat' (sin unidades), 'esp' (espacial: los dos ejes en metros), 'quim' (ejes de distinta naturaleza)
+   ================================================================ */
+const MODELOS = {
+  parab:{ id:'parab', tipo:'mat', nombre:'f(x,y) = x² + y²', latex:'f(x,y)=x^2+y^2', f:(x,y)=>x*x+y*y, fx:(x,y)=>2*x, fy:(x,y)=>2*y, latexFx:'f_x=2x', latexFy:'f_y=2y', xmin:-5,xmax:5,ymin:-5,ymax:5, a0:3, b0:4, desc:'Paraboloide: las curvas de nivel son circunferencias y el gradiente apunta hacia afuera.' },
+  elip2:{ id:'elip2', tipo:'mat', nombre:'f(x,y) = 2x² + y²', latex:'f(x,y)=2x^2+y^2', f:(x,y)=>2*x*x+y*y, fx:(x,y)=>4*x, fy:(x,y)=>2*y, latexFx:'f_x=4x', latexFy:'f_y=2y', xmin:-4,xmax:4,ymin:-4,ymax:4, a0:2, b0:3, desc:'Paraboloide elíptico: curvas de nivel elípticas; el gradiente ya no es radial.' },
+  silla:{ id:'silla', tipo:'mat', nombre:'f(x,y) = x² − y²', latex:'f(x,y)=x^2-y^2', f:(x,y)=>x*x-y*y, fx:(x,y)=>2*x, fy:(x,y)=>-2*y, latexFx:'f_x=2x', latexFy:'f_y=-2y', xmin:-3,xmax:3,ymin:-3,ymax:3, a0:1, b0:2, desc:'Silla: en el origen el gradiente es nulo y sin embargo no hay máximo ni mínimo.' },
+  prod:{ id:'prod', tipo:'mat', nombre:'f(x,y) = x·y', latex:'f(x,y)=x\\,y', f:(x,y)=>x*y, fx:(x,y)=>y, fy:(x,y)=>x, latexFx:'f_x=y', latexFy:'f_y=x', xmin:-3,xmax:3,ymin:-3,ymax:3, a0:2, b0:1, desc:'Curvas de nivel hiperbólicas; los ejes son el nivel cero.' },
+  gauss:{ id:'gauss', tipo:'mat', nombre:'f(x,y) = e^{−(x²+y²)}', latex:'f(x,y)=e^{-(x^2+y^2)}', f:(x,y)=>Math.exp(-x*x-y*y), fx:(x,y)=>-2*x*Math.exp(-x*x-y*y), fy:(x,y)=>-2*y*Math.exp(-x*x-y*y), latexFx:'f_x=-2x\\,e^{-(x^2+y^2)}', latexFy:'f_y=-2y\\,e^{-(x^2+y^2)}', xmin:-2,xmax:2,ymin:-2,ymax:2, a0:0.5, b0:0.3, desc:'Campana: el gradiente apunta hacia la cima, y en la cima es nulo.' },
+  /* ----- espaciales: los dos ejes en metros (modelos didácticos simplificados) ----- */
+  placa:{ id:'placa', tipo:'esp', letra:'P', nombre:'Placa calefactora T(x,y)', latex:'T(x,y)=320+20\\,x-15\\,y+10\\,x\\,y',
+    f:(x,y)=>320+20*x-15*y+10*x*y, fx:(x,y)=>20+10*y, fy:(x,y)=>-15+10*x, latexFx:'\\frac{\\partial T}{\\partial x}=20+10\\,y', latexFy:'\\frac{\\partial T}{\\partial y}=-15+10\\,x',
+    xmin:0,xmax:1,ymin:0,ymax:1, a0:0.5, b0:0.4, vx:{sym:'x',nombre:'posición x',u:U.m,ut:'m'}, vy:{sym:'y',nombre:'posición y',u:U.m,ut:'m'}, vz:{sym:'T',nombre:'temperatura',u:U.K,ut:'K'},
+    contexto:'Una placa de 1 m × 1 m calentada de manera no uniforme: la temperatura depende de la posición (x ; y) sobre la placa.',
+    desc:'Los dos ejes están en metros: el ángulo de una flecha sobre la placa es un ángulo real.' },
+  recip:{ id:'recip', tipo:'esp', letra:'S', nombre:'Concentración en un recipiente C(x,y)', latex:'C(x,y)=2\\,e^{-\\frac{(x-0{,}3)^2+(y-0{,}4)^2}{0{,}08}}+0{,}4\\,x',
+    f:(x,y)=>2*Math.exp(-((x-0.3)**2+(y-0.4)**2)/0.08)+0.4*x, fx:(x,y)=>-2*(x-0.3)/0.04*Math.exp(-((x-0.3)**2+(y-0.4)**2)/0.08)+0.4, fy:(x,y)=>-2*(y-0.4)/0.04*Math.exp(-((x-0.3)**2+(y-0.4)**2)/0.08),
+    latexFx:'\\frac{\\partial C}{\\partial x}=-50\\,(x-0{,}3)\\,e^{-\\frac{(x-0{,}3)^2+(y-0{,}4)^2}{0{,}08}}+0{,}4', latexFy:'\\frac{\\partial C}{\\partial y}=-50\\,(y-0{,}4)\\,e^{-\\frac{(x-0{,}3)^2+(y-0{,}4)^2}{0{,}08}}',
+    xmin:0,xmax:1,ymin:0,ymax:1, a0:0.5, b0:0.6, vx:{sym:'x',nombre:'posición x',u:U.m,ut:'m'}, vy:{sym:'y',nombre:'posición y',u:U.m,ut:'m'}, vz:{sym:'C',nombre:'concentración',u:U.molL,ut:'mol·L⁻¹'},
+    contexto:'Un recipiente de 1 m × 1 m con un foco de soluto cerca de (0,3 ; 0,4) y una leve tendencia a crecer hacia la derecha.',
+    desc:'El máximo de C está en (0,31 ; 0,40), donde el gradiente se anula.' },
+  /* ----- químicos con ejes de distinta naturaleza (modelos didácticos simplificados) ----- */
+  rend:{ id:'rend', tipo:'quim', letra:'G', nombre:'Rendimiento de una reacción R(T,C)', latex:'R(T,C)=85-0{,}02\\,(T-60)^2-6\\,(C-1{,}5)^2',
+    f:(T,C)=>85-0.02*(T-60)**2-6*(C-1.5)**2, fx:(T,C)=>-0.04*(T-60), fy:(T,C)=>-12*(C-1.5), latexFx:'\\frac{\\partial R}{\\partial T}=-0{,}04\\,(T-60)', latexFy:'\\frac{\\partial R}{\\partial C}=-12\\,(C-1{,}5)',
+    xmin:20,xmax:100,ymin:0,ymax:3, a0:45, b0:1, vx:{sym:'T',nombre:'temperatura',u:U.gC,ut:'°C'}, vy:{sym:'C',nombre:'concentración del reactivo',u:U.molL,ut:'mol·L⁻¹', alt:{ut:'mmol·L⁻¹', k:1000, u:U.mmolL}}, vz:{sym:'R',nombre:'rendimiento',u:U.pct,ut:'%'},
+    contexto:'Un proceso con condiciones óptimas de 60 °C y 1,5 mol·L⁻¹, donde el rendimiento es 85 %. Alejarse de ellas, en cualquier sentido, lo reduce.',
+    desc:'En el óptimo el gradiente es nulo.' },
+  conc:{ id:'conc', tipo:'quim', letra:'A', nombre:'Gas disuelto C(T,P)', latex:'C(T,P)=200+4\\,P-0{,}05\\,T\\,P',
+    f:(T,P)=>200+4*P-0.05*T*P, fx:(T,P)=>-0.05*P, fy:(T,P)=>4-0.05*T, latexFx:'\\frac{\\partial C}{\\partial T}=-0{,}05\\,P', latexFy:'\\frac{\\partial C}{\\partial P}=4-0{,}05\\,T',
+    xmin:0,xmax:60,ymin:50,ymax:300, a0:40, b0:200, vx:{sym:'T',nombre:'temperatura',u:U.gC,ut:'°C'}, vy:{sym:'P',nombre:'presión',u:U.kPa,ut:'kPa', alt:{ut:'Pa', k:1000, u:'\\text{Pa}'}}, vz:{sym:'C',nombre:'concentración de gas disuelto',u:U.mmolL,ut:'mmol·L⁻¹'},
+    contexto:'La concentración de un gas disuelto baja al calentar y sube al presurizar.',
+    desc:'Calentar expulsa gas; presurizar lo disuelve. Para mantener C hay que compensar una cosa con la otra.' }
+};
+for(const k in MODELOS){
+  const m = MODELOS[k];
+  if(!m.vx) m.vx = {sym:'x',nombre:'x',u:'',ut:''};
+  if(!m.vy) m.vy = {sym:'y',nombre:'y',u:'',ut:''};
+  if(!m.vz) m.vz = {sym:'z',nombre:'z = f(x,y)',u:'',ut:''};
+  m.fn = m.tipo === 'mat' ? 'f' : m.vz.sym;
+  m.uFx = unidadDerivada(m.vz.u, m.vx.u); m.uFy = unidadDerivada(m.vz.u, m.vy.u);
+  const s = m.fn, X = m.vx.sym, Y = m.vy.sym;
+  m.symFx = m.tipo === 'mat' ? 'f_x' : `\\frac{\\partial ${s}}{\\partial ${X}}`;
+  m.symFy = m.tipo === 'mat' ? 'f_y' : `\\frac{\\partial ${s}}{\\partial ${Y}}`;
+  m.symGrad = `\\nabla ${s}`;
+}
+function etiquetaEje(v, alt){ const ut = alt && v.alt ? v.alt.ut : v.ut; return ut ? `${v.sym} [${ut}]` : v.sym; }
+
+/* ---------- Cálculo de las direcciones especiales en P = (a,b) ---------- */
+function calcDir(m, a, b, th){
+  const f0 = m.f(a,b), fx = m.fx(a,b), fy = m.fy(a,b);
+  const n = Math.hypot(fx, fy);
+  const angGrad = n > 1e-12 ? normAng(Math.atan2(fy, fx)/DEG) : NaN;
+  const r = { a, b, f0, fx, fy, n, angGrad, nulo: n < 1e-4 };
+  if(!r.nulo){ r.umax = [fx/n, fy/n]; r.umin = [-fx/n, -fy/n]; r.unula = [[-fy/n, fx/n], [fy/n, -fx/n]]; r.angMin = normAng(angGrad+180); r.angNula = [normAng(angGrad+90), normAng(angGrad-90)]; }
+  if(th !== undefined){ const u = [Math.cos(th*DEG), Math.sin(th*DEG)]; r.th = th; r.u = u; r.Du = fx*u[0] + fy*u[1]; r.phi = isNaN(angGrad) ? NaN : difAng(th, angGrad); }
+  return r;
+}
+function calcPaso(m, a, b, dx, dy){
+  const fx = m.fx(a,b), fy = m.fy(a,b);
+  const ax = fx*dx, ay = fy*dy; const Dv = ax+ay; const fQ = m.f(a+dx, b+dy), f0 = m.f(a,b);
+  return { a, b, dx, dy, f0, fx, fy, ax, ay, Dv, fQ, dReal: fQ-f0, comp: Math.abs(fy)>1e-12 ? -fx/fy : NaN };
+}
+
+/* ================================================================
+   AUTOTEST · valores de control de la página
+   ================================================================ */
+function autotest(){
+  const r = []; const ok = (nombre, val, esp, tol) => r.push({nombre, val, esp, ok: Math.abs(val-esp) <= tol});
+  let c = calcDir(MODELOS.parab, 3, 4); ok('Ej1 f', c.f0, 25, 0); ok('Ej1 fx', c.fx, 6, 0); ok('Ej1 fy', c.fy, 8, 0); ok('Ej1 ‖∇f‖', c.n, 10, 1e-12); ok('Ej1 umax x', c.umax[0], 0.6, 1e-12); ok('Ej1 umax y', c.umax[1], 0.8, 1e-12); ok('Ej1 nula', c.unula[0][0]*c.fx + c.unula[0][1]*c.fy, 0, 1e-12);
+  c = calcDir(MODELOS.placa, 0.5, 0.4); ok('Ej2 T', c.f0, 326, 1e-9); ok('Ej2 Tx', c.fx, 24, 1e-9); ok('Ej2 Ty', c.fy, -10, 1e-9); ok('Ej2 ‖∇T‖', c.n, 26, 1e-9); ok('Ej2 umax x', c.umax[0], 12/13, 1e-9);
+  ok('Ej2 paso 5 cm exacto', MODELOS.placa.f(0.5+0.05*12/13, 0.4-0.05*5/13)-326, 1.29112, 1e-4); ok('Ej2 paso 5 cm lineal', 26*0.05, 1.3, 1e-12);
+  ok('B1.2', 5*Math.cos(60*DEG), 2.5, 1e-12);
+  c = calcDir(MODELOS.prod, 2, 1); ok('B2.1 grad x (xy² no está; prod es xy)', c.fx, 1, 0); ok('2.3 xy nula', 0.8944*1 - 0.4472*2, 0, 1e-3);
+  ok('B2.1 xy² fx', 1*1, 1, 0); ok('B2.1 xy² fy', 2*2*1, 4, 0); ok('B2.1 ‖∇f‖', Math.hypot(1,4), Math.sqrt(17), 1e-12); ok('B2.1 umax', 4/Math.sqrt(17), 0.9701, 1e-4);
+  ok('B2.3 nula (3;4)', 0.8*3-0.6*4, 0, 1e-12);
+  let p = calcPaso(MODELOS.rend, 45, 1, 1, -0.1); ok('rend fx', p.fx, 0.6, 1e-12); ok('rend fy', p.fy, 6, 1e-12); ok('B3.1 Dv=0', p.Dv, 0, 1e-12); ok('caja componente 1°C', 0.6*1, 0.6, 0); ok('caja 0,1 mol', 6*0.1, 0.6, 1e-12); { const q = calcPaso(MODELOS.conc,25,150,4,120/11); ok('3.3 conc fx', q.fx, -7.5, 1e-12); ok('3.3 conc fy', q.fy, 2.75, 1e-12); ok('3.3 Dv=0', q.Dv, 0, 1e-9); ok('3.3 comp', q.comp*4, 120/11, 1e-9); } ok('rend comp', p.comp, -0.1, 1e-12); ok('rend exacto (46;0,9)', p.dReal, -0.08, 1e-9);
+  p = calcPaso(MODELOS.rend, 45, 1, 1, -0.1); ok('3.2 A', p.Dv, 0, 1e-12); ok('3.2 B', calcPaso(MODELOS.rend,45,1,1,0.1).Dv, 1.2, 1e-12); ok('3.2 C', calcPaso(MODELOS.rend,45,1,-1,-0.1).Dv, -1.2, 1e-12); ok('3.2 D', calcPaso(MODELOS.rend,45,1,0.1,-1).Dv, -5.94, 1e-9);
+  p = calcPaso(MODELOS.conc, 40, 200, 3, 15); ok('conc C', p.f0, 600, 1e-9); ok('conc fx', p.fx, -10, 1e-12); ok('conc fy', p.fy, 2, 1e-12); ok('conc Dv (3;15)', p.Dv, 0, 1e-12); ok('conc comp', p.comp, 5, 1e-12); ok('conc exacto', p.dReal, -2.25, 1e-9);
+  c = calcDir(MODELOS.elip2, 2, 3); ok('2.2 f', c.f0, 17, 0); ok('2.2 ‖∇f‖', c.n, 10, 1e-12); ok('2.2 umax', c.umax[0], 0.8, 1e-12);
+  ok('2.1 ‖∇f‖ x²+xy+y² (1;2)', Math.hypot(4,5), Math.sqrt(41), 1e-12); ok('2.1 max', Math.sqrt(41), 6.4031, 1e-4);
+  c = calcDir(MODELOS.placa, 0.3, 0.4); ok('2.4 ‖∇T‖', c.n, 12*Math.sqrt(5), 1e-9); ok('2.4 D_u', c.fx*0.6+c.fy*0.8, 4.8, 1e-9);
+  ok('D1', Math.hypot(3,4), 5, 0); ok('D2 ΔT≈', 26*0.1, 2.6, 1e-12); ok('D2 exacto máx', MODELOS.placa.f(0.5+0.1*12/13, 0.4-0.1*5/13)-326, 2.564, 1e-3); ok('D2 exacto nula', MODELOS.placa.f(0.5+0.1*5/13, 0.4+0.1*12/13)-326, 0.036, 1e-3);
+  c = calcDir(MODELOS.recip, 0.308006, 0.4); ok('recip máximo ∇≈0', c.n, 0, 1e-4); ok('recip máximo nulo', c.nulo?1:0, 1, 0);
+  c = calcDir(MODELOS.recip, 0.6, 0.7); ok('pred inicio ángulo SO', difAng(c.angGrad, 225) < 22.5 ? 1 : 0, 1, 0);
+  for(const kk of ['parab','silla','gauss']){ c = calcDir(MODELOS[kk], 0, 0); ok('grad nulo '+kk, c.n, 0, 1e-12); }
+  c = calcDir(MODELOS.parab, 3, 4, 53.13); ok('cos φ≈1 en θ=53,13°', c.Du, 10, 1e-2);
+  c = calcDir(MODELOS.parab, 3, 4, 53.13+90); ok('nula θ=143,13°', c.Du, 0, 1e-2);
+  { const r1 = medirEntreCurvas(MODELOS.recip, 0.45, 0.55, 0.25), r2 = medirEntreCurvas(MODELOS.recip, 0.56, 0.82, 0.25); ok('lectura P1 est≈n', r1.est/r1.n, 1, 0.03); ok('lectura P2 est≈n', r2.est/r2.n, 1, 0.03); ok('lectura P1 d', r1.d, 0.044, 0.002); ok('lectura P2 d', r2.d, 0.251, 0.003); for(const q of [r1.A,r1.B,r2.A,r2.B]) ok('lectura dentro del mapa', (q[0]>=0&&q[0]<=1&&q[1]>=0&&q[1]<=1)?1:0, 1, 0); }
+  for(const kk in MODELOS){ const m = MODELOS[kk]; const x = (m.xmin+m.xmax)/2+0.13*(m.xmax-m.xmin), y = (m.ymin+m.ymax)/2-0.17*(m.ymax-m.ymin); const h = 1e-5*(m.xmax-m.xmin), hy = 1e-5*(m.ymax-m.ymin);
+    const tol = v => 1e-3*Math.max(1e-6, Math.abs(v));
+    ok('fx '+kk, m.fx(x,y), (m.f(x+h,y)-m.f(x-h,y))/(2*h), tol(m.fx(x,y))); ok('fy '+kk, m.fy(x,y), (m.f(x,y+hy)-m.f(x,y-hy))/(2*hy), tol(m.fy(x,y))); }
+  return r;
+}
+window.__autotest = autotest;
+
+/* ===== 20_graficos.js ===== */
+/* ================================================================
+   MOTOR GRÁFICO · canvas 2D (mapas de nivel, flechas, curva del coseno) y Plotly 3D
+   ================================================================ */
+const COL = { grad:'#e11d48', dir:'#2563eb', nula:'#15803d', min:'#7c3aed', corte:'#ea580c', punto:'#0f172a', pos:'#16a34a', neg:'#dc2626', navy:'#0f2244', blue:'#1d6fcc', q:'#0891b2', gris:'#64748b' };
+const ESCALA = [[0,'#1e293b'],[0.3,'#1d6fcc'],[0.65,'#67e8f9'],[1,'#fef9c3']];
+function colorEscala(t){
+  t = clamp(t,0,1);
+  for(let i=1;i<ESCALA.length;i++){
+    if(t <= ESCALA[i][0]){
+      const [t0,c0] = ESCALA[i-1], [t1,c1] = ESCALA[i]; const u = (t-t0)/(t1-t0);
+      const h = c => [parseInt(c.slice(1,3),16),parseInt(c.slice(3,5),16),parseInt(c.slice(5,7),16)];
+      const a=h(c0), b=h(c1); return a.map((v,k)=>Math.round(v+(b[k]-v)*u));
+    }
+  }
+  return [255,255,255];
+}
+const _mallas = {};
+function malla(m, n=46){
+  const k = m.id+'_'+n; if(_mallas[k]) return _mallas[k];
+  const xs = lin(n, m.xmin, m.xmax), ys = lin(n, m.ymin, m.ymax);
+  let zmin=Infinity, zmax=-Infinity;
+  const z = ys.map(y => xs.map(x => { const v = m.f(x,y); if(isFinite(v)){ zmin=Math.min(zmin,v); zmax=Math.max(zmax,v);} return isFinite(v)?v:null; }));
+  if(zmax-zmin < 1e-9) zmax = zmin+1;
+  const pad = (zmax-zmin)*0.08;
+  return _mallas[k] = {xs, ys, z, zmin:zmin-pad, zmax:zmax+pad, zminReal:zmin, zmaxReal:zmax};
+}
+function prepararCanvas(cv, alto){
+  const dpr = window.devicePixelRatio || 1;
+  if(!cv.dataset.hBase) cv.dataset.hBase = cv.getAttribute('height') || 300;
+  const h = alto || parseInt(cv.dataset.hBase);
+  const w = cv.clientWidth || cv.parentElement.clientWidth || 520;
+  cv.width = Math.round(w*dpr); cv.height = Math.round(h*dpr); cv.style.height = h+'px';
+  const ctx = cv.getContext('2d'); ctx.setTransform(dpr,0,0,dpr,0,0);
+  ctx.clearRect(0,0,w,h); ctx.fillStyle='#fff'; ctx.fillRect(0,0,w,h);
+  return {ctx,w,h};
+}
+/* marcas redondas (1, 2 o 5 por potencia de diez) */
+function escala(a, b, n=5){
+  const bruto = (b - a)/n, e = Math.pow(10, Math.floor(Math.log10(bruto))), r = bruto/e;
+  const paso = (r < 1.5 ? 1 : r < 3 ? 2 : r < 7 ? 5 : 10) * e;
+  const out = [];
+  for (let v = Math.ceil(a/paso - 1e-9)*paso; v <= b + paso*1e-9; v += paso) out.push(Math.abs(v) < paso*1e-9 ? 0 : v);
+  return out;
+}
+function fmtEje(v){ const a = Math.abs(v); if(a >= 1e4 || (a > 0 && a < 1e-3)){ const e = Math.floor(Math.log10(a)); const mant = v/Math.pow(10,e); const sup = String(e).replace(/-/g,'⁻').replace(/\d/g, d => '⁰¹²³⁴⁵⁶⁷⁸⁹'[d]); return fmt(mant,1)+'·10'+sup; } return fmt(v, a >= 100 ? 0 : a >= 10 ? 1 : 2); }
+/* halo blanco en todo rótulo */
+function texto(ctx, t, x, y, color, font, align){
+  ctx.font = font || 'bold 12px Outfit, sans-serif'; ctx.textAlign = align || 'left'; ctx.textBaseline = 'alphabetic';
+  ctx.lineWidth = 3.2; ctx.strokeStyle = 'rgba(255,255,255,.9)'; ctx.lineJoin = 'round'; ctx.strokeText(t, x, y);
+  ctx.fillStyle = color; ctx.fillText(t, x, y);
+}
+function geoMapa(ctx, w, h, m, alt){
+  const ymin = alt ? m.ymin*alt.k : m.ymin, ymax = alt ? m.ymax*alt.k : m.ymax;
+  const rotY = escala(ymin, ymax).map(fmtEje); ctx.font = '11px Outfit, sans-serif';
+  const L = Math.max(46, Math.ceil(Math.max(...rotY.map(t => ctx.measureText(t).width))) + 26);
+  return { l:L, t:22, w:w-L-14, h:h-22-40, xmin:m.xmin, xmax:m.xmax, ymin, ymax };
+}
+function dibujarEjes(ctx, geo, etX, etY){
+  const {l,t,w,h,xmin,xmax,ymin,ymax} = geo;
+  const X = x => l + (x-xmin)/(xmax-xmin)*w, Y = y => t + h - (y-ymin)/(ymax-ymin)*h;
+  ctx.strokeStyle='rgba(148,163,184,.35)'; ctx.lineWidth=1; ctx.setLineDash([]);
+  (geo.ticksX || escala(xmin,xmax)).forEach(v=>{ ctx.beginPath(); ctx.moveTo(X(v),t); ctx.lineTo(X(v),t+h); ctx.stroke(); texto(ctx, geo.ticksX ? fmt(v,0)+(geo.grados?'°':'') : fmtEje(v), X(v), t+h+14, '#64748b', '11px Outfit, sans-serif', 'center'); });
+  escala(ymin,ymax).forEach(v=>{ ctx.beginPath(); ctx.moveTo(l,Y(v)); ctx.lineTo(l+w,Y(v)); ctx.stroke(); texto(ctx, fmtEje(v), l-6, Y(v)+4, '#64748b', '11px Outfit, sans-serif', 'right'); });
+  ctx.strokeStyle='#94a3b8'; ctx.lineWidth=1.2; ctx.strokeRect(l,t,w,h);
+  texto(ctx, etX, l+w/2, t+h+30, '#334155', 'bold 12px Outfit, sans-serif', 'center');
+  ctx.save(); ctx.translate(13, t+h/2); ctx.rotate(-Math.PI/2); texto(ctx, etY, 0, 0, '#334155', 'bold 12px Outfit, sans-serif', 'center'); ctx.restore();
+  return {X,Y};
+}
+function flecha(ctx, x1,y1,x2,y2, color, ancho=3, cabeza=11){
+  const a = Math.atan2(y2-y1, x2-x1);
+  ctx.strokeStyle=color; ctx.fillStyle=color; ctx.lineWidth=ancho; ctx.setLineDash([]); ctx.lineCap='round';
+  ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2 - cabeza*0.6*Math.cos(a), y2 - cabeza*0.6*Math.sin(a)); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(x2,y2); ctx.lineTo(x2-cabeza*Math.cos(a-0.42), y2-cabeza*Math.sin(a-0.42)); ctx.lineTo(x2-cabeza*Math.cos(a+0.42), y2-cabeza*Math.sin(a+0.42)); ctx.closePath(); ctx.fill();
+}
+function punto(ctx, x, y, color, r=5, label){ ctx.fillStyle='#fff'; ctx.beginPath(); ctx.arc(x,y,r+2,0,7); ctx.fill(); ctx.fillStyle=color; ctx.beginPath(); ctx.arc(x,y,r,0,7); ctx.fill(); if(label) texto(ctx, label, x+8, y-8, color); }
+/* barra de la escala de colores: oscuro = valores bajos, claro = altos */
+function barraColor(ctx, x, y, w, etA, etB){
+  const h=9; for(let i=0;i<w;i++){ const c=colorEscala(i/(w-1)); ctx.fillStyle=`rgb(${c[0]},${c[1]},${c[2]})`; ctx.fillRect(x+i, y, 1.5, h); }
+  ctx.strokeStyle='rgba(255,255,255,.9)'; ctx.lineWidth=1; ctx.strokeRect(x-0.5, y-0.5, w+1, h+1);
+  texto(ctx, etA, x, y+h+11, '#334155', '10px Outfit, sans-serif', 'left'); texto(ctx, etB, x+w, y+h+11, '#334155', '10px Outfit, sans-serif', 'right');
+}
+/* bandas de color por píxel; alt = escala alternativa del eje y */
+function dibujarBandas(ctx, geo, m, op={}){
+  const M = malla(m); const zmin=M.zminReal, zmax=M.zmaxReal, r=(zmax-zmin)||1; const NB = op.bandas || 12; const ky = op.alt ? op.alt.k : 1;
+  const dpr = window.devicePixelRatio||1;
+  const W = Math.max(2,Math.round(geo.w*dpr)), H = Math.max(2,Math.round(geo.h*dpr));
+  const data = ctx.createImageData(W,H); const suave = op.suave ? 0.55 : 0;
+  for(let py=0;py<H;py++) for(let px=0;px<W;px++){
+    const x = geo.xmin+(geo.xmax-geo.xmin)*px/(W-1), y = (geo.ymax-(geo.ymax-geo.ymin)*py/(H-1))/ky;
+    const z = m.f(x,y); const k=4*(py*W+px);
+    if(!isFinite(z)){ data.data[k]=241;data.data[k+1]=245;data.data[k+2]=249;data.data[k+3]=255; continue; }
+    const tt = Math.floor(clamp((z-zmin)/r,0,0.9999)*NB)/NB;
+    const c = colorEscala(tt+0.5/NB);
+    data.data[k]=Math.round(c[0]+(255-c[0])*suave);data.data[k+1]=Math.round(c[1]+(255-c[1])*suave);data.data[k+2]=Math.round(c[2]+(255-c[2])*suave);data.data[k+3]=255;
+  }
+  ctx.save(); ctx.setTransform(1,0,0,1,0,0); ctx.putImageData(data, Math.round(geo.l*dpr), Math.round(geo.t*dpr)); ctx.restore();
+}
+/* marching squares → polilíneas encadenadas para el nivel k */
+function curvaNivel(m, k, n=110){
+  const key = m.id+'_'+n; if(!m._cn || m._cn.key !== key){ const xs=lin(n,m.xmin,m.xmax), ys=lin(n,m.ymin,m.ymax); m._cn = { key, xs, ys, Z: ys.map(y=>xs.map(x=>m.f(x,y))) }; }
+  const {xs, ys, Z} = m._cn; const segs = [];
+  for(let j=0;j<n-1;j++) for(let i=0;i<n-1;i++){
+    const v=[Z[j][i],Z[j][i+1],Z[j+1][i+1],Z[j+1][i]]; if(v.some(t=>!isFinite(t))) continue;
+    const p=[[xs[i],ys[j]],[xs[i+1],ys[j]],[xs[i+1],ys[j+1]],[xs[i],ys[j+1]]]; const pts=[];
+    for(let e=0;e<4;e++){ const a=v[e], bq=v[(e+1)%4]; if((a-k)*(bq-k)<0){ const u=(k-a)/(bq-a); pts.push([p[e][0]+(p[(e+1)%4][0]-p[e][0])*u, p[e][1]+(p[(e+1)%4][1]-p[e][1])*u]); } }
+    if(pts.length>=2){ segs.push([pts[0],pts[1]]); if(pts.length===4) segs.push([pts[2],pts[3]]); }
+  }
+  // encadenar
+  const key2 = p => Math.round(p[0]*4096)+'_'+Math.round(p[1]*4096);
+  const mapa = new Map(); segs.forEach((s,i)=>{ for(const p of [s[0],s[1]]){ const kk=key2(p); if(!mapa.has(kk)) mapa.set(kk,[]); mapa.get(kk).push(i); } });
+  const usado = new Array(segs.length).fill(false); const polis = [];
+  for(let i=0;i<segs.length;i++){ if(usado[i]) continue; usado[i]=true; let poli=[segs[i][0], segs[i][1]];
+    for(const dir of [1,-1]){ let fin = dir===1 ? poli[poli.length-1] : poli[0]; let go=true;
+      while(go){ go=false; const cand = mapa.get(key2(fin))||[]; for(const j of cand){ if(usado[j]) continue; const s=segs[j]; const otro = key2(s[0])===key2(fin) ? s[1] : key2(s[1])===key2(fin) ? s[0] : null; if(!otro) continue; usado[j]=true; if(dir===1) poli.push(otro); else poli.unshift(otro); fin=otro; go=true; break; } } }
+    polis.push(poli); }
+  return polis;
+}
+function trazarPolis(ctx, polis, X, Y, color, ancho, dash){
+  ctx.strokeStyle=color; ctx.lineWidth=ancho; ctx.setLineDash(dash||[]); ctx.lineJoin='round'; ctx.beginPath();
+  for(const p of polis){ p.forEach((q,i)=>{ i?ctx.lineTo(X(q[0]),Y(q[1])):ctx.moveTo(X(q[0]),Y(q[1])); }); }
+  ctx.stroke(); ctx.setLineDash([]);
+}
+function nivelesDe(m, NB=12){ const M=malla(m); const r=M.zmaxReal-M.zminReal; return Array.from({length:NB-1},(_,b)=>M.zminReal + r*(b+1)/NB); }
+function dibujarLineasNivel(ctx, m, X, Y, op={}){ const niveles = op.niveles || nivelesDe(m, op.bandas||12); for(const k of niveles) trazarPolis(ctx, curvaNivel(m,k), X, Y, op.color||'rgba(255,255,255,.85)', op.ancho||1.2); }
+function altoMapa(cv, m){ const w = cv.clientWidth || cv.parentElement.clientWidth || 520; if(m.tipo==='quim') return parseInt(cv.dataset.hBase||cv.getAttribute('height')||300); const L = 60; const a = (w - L - 14)*(m.ymax-m.ymin)/(m.xmax-m.xmin) + 62; return Math.round(clamp(a, 240, 460)); }
+
+/* ================= MAPA "GIRAR": P, dirección u, gradiente, nulas ================= */
+function dibujarMapaGiro(cv, m, c, st){
+  const {ctx,w,h} = prepararCanvas(cv, altoMapa(cv, m));
+  const geo = geoMapa(ctx, w, h, m);
+  dibujarBandas(ctx, geo, m);
+  const {X,Y} = dibujarEjes(ctx, geo, etiquetaEje(m.vx), etiquetaEje(m.vy));
+  ctx.save(); ctx.beginPath(); ctx.rect(geo.l,geo.t,geo.w,geo.h); ctx.clip();
+  dibujarLineasNivel(ctx, m, X, Y);
+  const px=X(c.a), py=Y(c.b); const Lpx = Math.min(geo.w, geo.h)*0.22;
+  if(st.revelado && !c.nulo){
+    // curva de nivel por P y dirección nula
+    trazarPolis(ctx, curvaNivel(m, c.f0), X, Y, COL.nula, 2.2);
+    const nx = c.unula[0][0], ny = c.unula[0][1]; const Ln = Lpx*0.9;
+    ctx.strokeStyle=COL.nula; ctx.lineWidth=2; ctx.setLineDash([6,4]); ctx.beginPath(); ctx.moveTo(px-nx*Ln, py+ny*Ln); ctx.lineTo(px+nx*Ln, py-ny*Ln); ctx.stroke(); ctx.setLineDash([]);
+    texto(ctx, 'derivada nula', px+nx*Ln+4, py-ny*Ln, COL.nula, 'bold 11px Outfit, sans-serif');
+    // gradiente (largo fijo en píxeles: la flecha indica dirección, no módulo)
+    const gx = c.umax[0], gy = c.umax[1]; const Lg = Lpx*1.15;
+    flecha(ctx, px, py, px+gx*Lg, py-gy*Lg, COL.grad, 3.4, 12); texto(ctx, '∇'+m.fn, px+gx*Lg+6, py-gy*Lg-4, COL.grad, 'bold 13px Outfit, sans-serif');
+    // mínimo
+    flecha(ctx, px, py, px-gx*Lg*0.7, py+gy*Lg*0.7, COL.min, 2, 9); texto(ctx, 'decrece más rápido', px-gx*Lg*0.7-4, py+gy*Lg*0.7+14, COL.min, 'bold 11px Outfit, sans-serif', gx>0?'right':'left');
+  }
+  // dirección u
+  if(c.u){ flecha(ctx, px, py, px+c.u[0]*Lpx, py-c.u[1]*Lpx, COL.dir, 3.2, 12); texto(ctx, 'u', px+c.u[0]*Lpx+5, py-c.u[1]*Lpx+4, COL.dir, 'italic bold 13px "STIX Two Text", serif'); }
+  punto(ctx, px, py, COL.punto, 5, 'P');
+  ctx.restore();
+  if(c.nulo && st.revelado) texto(ctx, 'gradiente nulo en P: ninguna dirección es especial', geo.l+8, geo.t+16, COL.grad);
+  else if(c.u) { const t = `D en la dirección u: ${fmt(c.Du,3)}${m.vz.ut&&m.vx.ut?' '+m.vz.ut+'·'+m.vx.ut+'⁻¹':''}`; texto(ctx, t, geo.l+geo.w-8, geo.t+16, c.Du>1e-9?COL.pos:c.Du<-1e-9?COL.neg:COL.gris, 'bold 12px Outfit, sans-serif', 'right'); }
+}
+/* ================= CURVA DEL COSENO θ ↦ D_u f ================= */
+function dibujarCoseno(cv, m, c, visitados, st){
+  const {ctx,w,h} = prepararCanvas(cv);
+  const n = c.n; const ymax = c.nulo ? 1 : n*1.32; const ymin = -ymax;
+  ctx.font='11px Outfit, sans-serif'; const rot = escala(ymin,ymax).map(fmtEje); const L = Math.max(46, Math.ceil(Math.max(...rot.map(t=>ctx.measureText(t).width)))+14);
+  const geo = { l:L, t:24, w:w-L-14, h:h-24-40, xmin:0, xmax:360, ymin, ymax, ticksX:[0,90,180,270,360], grados:true };
+  const {X,Y} = dibujarEjes(ctx, geo, 'θ · dirección de u, medida desde el eje horizontal [°]', 'derivada direccional');
+  ctx.strokeStyle='#94a3b8'; ctx.lineWidth=1.4; ctx.beginPath(); ctx.moveTo(geo.l,Y(0)); ctx.lineTo(geo.l+geo.w,Y(0)); ctx.stroke();
+  texto(ctx, st.revelado ? (c.nulo ? 'Gradiente nulo: la curva es plana' : 'La curva completa: un coseno estirado por ‖∇'+m.fn+'‖') : 'La curva que trazás vos al girar la dirección', geo.l, 15, '#334155');
+  ctx.save(); ctx.beginPath(); ctx.rect(geo.l,geo.t,geo.w,geo.h); ctx.clip();
+  const D = th => c.fx*Math.cos(th*DEG)+c.fy*Math.sin(th*DEG);
+  if(st.revelado){ ctx.strokeStyle=COL.dir; ctx.lineWidth=2.4; ctx.beginPath(); for(let th=0; th<=360; th+=1.5){ const x=X(th), y=Y(D(th)); th?ctx.lineTo(x,y):ctx.moveTo(x,y); } ctx.stroke();
+    if(!c.nulo){ // marcas
+      const mk = (th, val, color, lbl, arriba) => { punto(ctx, X(th), Y(val), color, 5); const tw = ctx.measureText(lbl).width; texto(ctx, lbl, clamp(X(th), geo.l+tw/2+4, geo.l+geo.w-tw/2-4), Y(val)+(arriba?-10:18), color, 'bold 11px Outfit, sans-serif', 'center'); };
+      mk(c.angGrad, n, COL.grad, 'máx = ‖∇'+m.fn+'‖', true); mk(c.angMin, -n, COL.min, 'mín = −‖∇'+m.fn+'‖', false);
+      for(const a of c.angNula) mk(a, 0, COL.nula, '0', true);
+      ctx.strokeStyle='rgba(148,163,184,.7)'; ctx.setLineDash([3,3]); ctx.lineWidth=1; ctx.beginPath(); ctx.moveTo(geo.l,Y(n)); ctx.lineTo(geo.l+geo.w,Y(n)); ctx.moveTo(geo.l,Y(-n)); ctx.lineTo(geo.l+geo.w,Y(-n)); ctx.stroke(); ctx.setLineDash([]);
+    } }
+  // puntos visitados
+  ctx.fillStyle = st.revelado ? 'rgba(37,99,235,.35)' : COL.dir; for(const th of visitados){ ctx.beginPath(); ctx.arc(X(th), Y(D(th)), 2.6, 0, 7); ctx.fill(); }
+  if(c.u){ punto(ctx, X(c.th), Y(c.Du), COL.dir, 6); }
+  ctx.restore();
+  if(c.u){ const lbl = `θ = ${fmt(c.th,0)}° → ${fmt(c.Du,3)}`; ctx.font='bold 12px Outfit, sans-serif'; const tw = ctx.measureText(lbl).width; texto(ctx, lbl, clamp(X(c.th), geo.l+tw/2+4, geo.l+geo.w-tw/2-4), c.Du>=0 ? Y(c.Du)+22 : Y(c.Du)-12, COL.dir, 'bold 12px Outfit, sans-serif', 'center'); }
+}
+/* ================= MAPA "CAMPO DE GRADIENTES" ================= */
+function dibujarMapaCampo(cv, m, P, st){
+  const {ctx,w,h} = prepararCanvas(cv, altoMapa(cv, m));
+  const geo = geoMapa(ctx, w, h, m); cv._geo = geo;
+  dibujarBandas(ctx, geo, m, {suave:true});
+  const {X,Y} = dibujarEjes(ctx, geo, etiquetaEje(m.vx), etiquetaEje(m.vy)); cv._XY = {X,Y};
+  ctx.save(); ctx.beginPath(); ctx.rect(geo.l,geo.t,geo.w,geo.h); ctx.clip();
+  const niveles = nivelesDe(m, 10);
+  for(const k of niveles){ const polis = curvaNivel(m,k); trazarPolis(ctx, polis, X, Y, 'rgba(15,34,68,.55)', 1.2); const p = polis.find(q=>q.length>12); if(p){ const cx=(m.xmin+m.xmax)/2, cy=(m.ymin+m.ymax)/2, rx=m.xmax-m.xmin, ry=m.ymax-m.ymin; let q=p[0], best=-Infinity; for(const r of p){ const v=(r[0]-cx)/rx+(r[1]-cy)/ry; if(v>best){best=v;q=r;} } texto(ctx, fmt(k, Math.abs(k)>=100?0:2), X(q[0]), Y(q[1])+4, '#334155', '10px Outfit, sans-serif', 'center'); } }
+  if(st.todas){ const N=8; const xs=lin(N+2,m.xmin,m.xmax).slice(1,-1), ys=lin(N+2,m.ymin,m.ymax).slice(1,-1); let nmax=0; for(const x of xs) for(const y of ys) nmax=Math.max(nmax, Math.hypot(m.fx(x,y),m.fy(x,y))); const Lg = Math.min(geo.w,geo.h)/(N+2)*0.9;
+    for(const x of xs) for(const y of ys){ const gx=m.fx(x,y), gy=m.fy(x,y); const nn=Math.hypot(gx,gy); if(nn<1e-9) continue; const s = Lg*(0.35+0.65*nn/nmax); flecha(ctx, X(x), Y(y), X(x)+gx/nn*s, Y(y)-gy/nn*s, 'rgba(225,29,72,.75)', 1.8, 7); } }
+  if(P){ const c = calcDir(m, P[0], P[1]); const px=X(c.a), py=Y(c.b); const Lpx=Math.min(geo.w,geo.h)*0.2;
+    trazarPolis(ctx, curvaNivel(m, c.f0), X, Y, COL.nula, 2.6);
+    if(!c.nulo){ const tx=c.unula[0][0], ty=c.unula[0][1]; ctx.strokeStyle=COL.nula; ctx.lineWidth=2; ctx.setLineDash([6,4]); ctx.beginPath(); ctx.moveTo(px-tx*Lpx*1.3, py+ty*Lpx*1.3); ctx.lineTo(px+tx*Lpx*1.3, py-ty*Lpx*1.3); ctx.stroke(); ctx.setLineDash([]);
+      flecha(ctx, px, py, px+c.umax[0]*Lpx, py-c.umax[1]*Lpx, COL.grad, 3.2, 11); texto(ctx, '∇'+m.fn, px+c.umax[0]*Lpx+6, py-c.umax[1]*Lpx-4, COL.grad, 'bold 13px Outfit, sans-serif');
+      // marca de ángulo recto
+      const s=9; const ax=c.umax[0], ay=-c.umax[1]; ctx.strokeStyle=COL.navy; ctx.lineWidth=1.4; ctx.beginPath(); ctx.moveTo(px+ax*s, py+ay*s); ctx.lineTo(px+ax*s+tx*s, py+ay*s-ty*s); ctx.lineTo(px+tx*s, py-ty*s); ctx.stroke();
+      texto(ctx, 'nivel '+fmt(c.f0,2), px-tx*Lpx*1.3-4, py+ty*Lpx*1.3+4, COL.nula, 'bold 11px Outfit, sans-serif', 'right'); }
+    punto(ctx, px, py, COL.punto, 5, 'P'); }
+  ctx.restore();
+  if(!P) texto(ctx, 'Tocá un punto del mapa', geo.l+geo.w-8, geo.t+16, '#334155', 'bold 12px Outfit, sans-serif', 'right');
+}
+/* ================= MAPA "REACTOR": paso v, gradiente en la escala vigente, línea de cambio nulo ================= */
+function dibujarMapaReactor(cv, m, p, st){
+  const {ctx,w,h} = prepararCanvas(cv);
+  const alt = st.alt ? m.vy.alt : null; const ky = alt ? alt.k : 1;
+  const geo = geoMapa(ctx, w, h, m, alt);
+  dibujarBandas(ctx, geo, m, {alt});
+  const {X,Y} = dibujarEjes(ctx, geo, etiquetaEje(m.vx), etiquetaEje(m.vy, !!alt));
+  const Yk = y => Y(y*ky);
+  ctx.save(); ctx.beginPath(); ctx.rect(geo.l,geo.t,geo.w,geo.h); ctx.clip();
+  for(const k of nivelesDe(m,12)){ const polis = curvaNivel(m,k).map(pl=>pl.map(q=>[q[0],q[1]*ky])); trazarPolis(ctx, polis, X, Y, 'rgba(255,255,255,.85)', 1.2); }
+  const px=X(p.a), py=Yk(p.b);
+  // gradiente dibujado con el ángulo que resulta de sus componentes como números (fx ; fy/k): cambia con la unidad elegida
+  const gx = p.fx, gy = p.fy/ky; const ng = Math.hypot(gx, gy); const Lpx = Math.min(geo.w,geo.h)*0.22;
+  // dirección real de cambio nulo: el vector (−fy ; fx) del plano de las variables, llevado a píxeles por los ejes (no depende de la unidad)
+  const tvx = -p.fy, tvy = p.fx; const tpx = tvx*geo.w/(geo.xmax-geo.xmin), tpy = -(tvy*ky)*geo.h/(geo.ymax-geo.ymin); const nt = Math.hypot(tpx,tpy)||1;
+  if(ng>1e-12 && st.grad!==false){
+    ctx.strokeStyle=COL.nula; ctx.lineWidth=2.2; ctx.setLineDash([6,4]); ctx.beginPath(); ctx.moveTo(px-tpx/nt*Lpx*1.7, py-tpy/nt*Lpx*1.7); ctx.lineTo(px+tpx/nt*Lpx*1.7, py+tpy/nt*Lpx*1.7); ctx.stroke(); ctx.setLineDash([]); texto(ctx, 'sin cambio (curva de nivel)', px+tpx/nt*Lpx*1.7+4, py+tpy/nt*Lpx*1.7+4, COL.nula, 'bold 11px Outfit, sans-serif');
+  }
+  // paso v
+  if(Math.abs(p.dx)>1e-12 || Math.abs(p.dy)>1e-12){ const qx=X(p.a+p.dx), qy=Yk(p.b+p.dy); flecha(ctx, px, py, qx, qy, COL.dir, 3.2, 11); punto(ctx, qx, qy, COL.q, 4, 'Q'); texto(ctx, 'v', (px+qx)/2+6, (py+qy)/2, COL.dir, 'italic bold 13px "STIX Two Text", serif'); }
+  punto(ctx, px, py, COL.punto, 5, 'P');
+  ctx.restore();
+  const tx = `${m.fn} ${p.Dv>1e-9?'sube':p.Dv<-1e-9?'baja':'no cambia (a primer orden)'} con ese paso`; texto(ctx, tx, geo.l+geo.w-8, geo.t+16, p.Dv>1e-9?COL.pos:p.Dv<-1e-9?COL.neg:COL.gris, 'bold 12px Outfit, sans-serif', 'right');
+}
+/* ================= MAPA con 8 direcciones (predicción de inicio) ================= */
+const DIR8 = [['E',0],['NE',45],['N',90],['NO',135],['O',180],['SO',225],['S',270],['SE',315]];
+function dibujarPred8(cv, m, P, elegida, revelado){
+  const {ctx,w,h} = prepararCanvas(cv, altoMapa(cv, m));
+  const geo = geoMapa(ctx, w, h, m); dibujarBandas(ctx, geo, m);
+  const {X,Y} = dibujarEjes(ctx, geo, etiquetaEje(m.vx), etiquetaEje(m.vy));
+  ctx.save(); ctx.beginPath(); ctx.rect(geo.l,geo.t,geo.w,geo.h); ctx.clip();
+  dibujarLineasNivel(ctx, m, X, Y);
+  const c = calcDir(m, P[0], P[1]); const px=X(c.a), py=Y(c.b); const L = Math.min(geo.w,geo.h)*0.16;
+  for(const [nm, th] of DIR8){ const dx=Math.cos(th*DEG), dy=Math.sin(th*DEG); const es = elegida===nm; flecha(ctx, px, py, px+dx*L, py-dy*L, es?COL.dir:'rgba(255,255,255,.9)', es?3.4:2, es?11:8); texto(ctx, nm, px+dx*(L+13), py-dy*(L+13)+4, es?COL.dir:'#1e293b', 'bold 11px Outfit, sans-serif', 'center'); }
+  if(revelado && !c.nulo){ const Lg=L*1.5; flecha(ctx, px, py, px+c.umax[0]*Lg, py-c.umax[1]*Lg, COL.grad, 3.4, 12); texto(ctx, '∇C', px+c.umax[0]*Lg+6, py-c.umax[1]*Lg-4, COL.grad, 'bold 13px Outfit, sans-serif'); }
+  punto(ctx, px, py, COL.punto, 5, 'P');
+  ctx.restore();
+}
+/* ================= SUPERFICIE 3D con el corte vertical en la dirección u ================= */
+function dibujar3DGiro(div, m, c, st){
+  if(!div) return;
+  if(!window.Plotly){ div.innerHTML = `<div class="noplot">${window.__plotlyEstado==='error' ? 'No se pudo cargar la biblioteca de gráficos 3D. Esta vista necesita conexión a internet; el mapa y la curva del coseno siguen funcionando.' : 'Cargando la superficie 3D…'}</div>`; return; }
+  const M = malla(m); const {xs, ys, z, zmin, zmax} = M;
+  const data = [];
+  data.push({ type:'surface', x:xs, y:ys, z, colorscale:ESCALA, opacity: st.superficie ? 0.82 : 0.12, showscale:false, hoverinfo:'skip', contours:{ z:{ show:true, usecolormap:false, color:'rgba(255,255,255,.7)', width:1, start:M.zminReal, end:M.zmaxReal, size:(M.zmaxReal-M.zminReal)/12 } }, lighting:{ambient:.7,diffuse:.6,specular:.15,roughness:.8} });
+  if(c.u){ // corte vertical a lo largo de u
+    const R = Math.min(m.xmax-m.xmin, m.ymax-m.ymin)*0.5; const ts = lin(120,-R,R); const pts = ts.map(t=>[c.a+c.u[0]*t, c.b+c.u[1]*t]).filter(p=>p[0]>=m.xmin&&p[0]<=m.xmax&&p[1]>=m.ymin&&p[1]<=m.ymax);
+    data.push({type:'scatter3d', mode:'lines', x:pts.map(p=>p[0]), y:pts.map(p=>p[1]), z:pts.map(p=>m.f(p[0],p[1])), line:{color:COL.corte,width:7}, hoverinfo:'skip'});
+    data.push({type:'scatter3d', mode:'lines', x:pts.map(p=>p[0]), y:pts.map(p=>p[1]), z:pts.map(()=>zmin), line:{color:COL.dir,width:4,dash:'dot'}, hoverinfo:'skip'});
+    const L = R*0.35; data.push({type:'scatter3d', mode:'lines', x:[c.a-c.u[0]*L, c.a+c.u[0]*L], y:[c.b-c.u[1]*L, c.b+c.u[1]*L], z:[c.f0-c.Du*L, c.f0+c.Du*L], line:{color:COL.dir,width:7,dash:'dash'}, hovertemplate:'pendiente en la dirección u: '+fmt(c.Du,3)+'<extra></extra>'});
+    // flecha u en el piso
+    const Lu = R*0.3; data.push({type:'scatter3d', mode:'lines+markers', x:[c.a, c.a+c.u[0]*Lu], y:[c.b, c.b+c.u[1]*Lu], z:[zmin, zmin], line:{color:COL.dir,width:6}, marker:{size:[0,5],color:COL.dir,symbol:'diamond'}, hoverinfo:'skip'});
+  }
+  if(st.revelado && !c.nulo){ const R = Math.min(m.xmax-m.xmin, m.ymax-m.ymin)*0.5; const Lg = R*0.35; data.push({type:'scatter3d', mode:'lines+markers+text', x:[c.a, c.a+c.umax[0]*Lg], y:[c.b, c.b+c.umax[1]*Lg], z:[zmin, zmin], line:{color:COL.grad,width:7}, marker:{size:[0,6],color:COL.grad,symbol:'diamond'}, text:['','∇'+m.fn], textposition:'top center', textfont:{color:COL.grad,size:13}, hoverinfo:'skip'}); }
+  data.push({type:'scatter3d', mode:'markers+text', x:[c.a], y:[c.b], z:[c.f0], marker:{color:COL.punto,size:6}, text:['P'], textposition:'top center', textfont:{size:13,color:COL.punto}, hovertemplate:`P = (${fmt(c.a)} ; ${fmt(c.b)} ; ${fmt(c.f0)})<extra></extra>`});
+  data.push({type:'scatter3d', mode:'markers', x:[c.a], y:[c.b], z:[zmin], marker:{color:COL.punto,size:4}, hoverinfo:'skip'});
+  data.push({type:'scatter3d', mode:'lines', x:[c.a,c.a], y:[c.b,c.b], z:[zmin,c.f0], line:{color:'#94a3b8',width:2,dash:'dot'}, hoverinfo:'skip'});
+  const eje = (v,rango) => ({ title:{text:etiquetaEje(v), font:{size:12,color:'#334155'}}, showgrid:true, gridcolor:'#e2e8f0', zeroline:false, backgroundcolor:'#f8fafc', showbackground:true, range:rango, tickfont:{size:10,color:'#64748b'} });
+  const layout = { margin:{l:0,r:0,t:0,b:0}, paper_bgcolor:'#ffffff', showlegend:false, uirevision: st.uirev,
+    scene:{ xaxis:eje(m.vx,[m.xmin,m.xmax]), yaxis:eje(m.vy,[m.ymin,m.ymax]), zaxis:eje(m.tipo==='mat'?{sym:'z',ut:''}:m.vz,[zmin,zmax]), aspectmode:'cube', camera: st.camara || {eye:{x:1.3,y:-1.3,z:0.85}}, uirevision: st.uirev } };
+  Plotly.react(div, data, layout, {displaylogo:false, responsive:false, modeBarButtonsToRemove:['toImage','hoverClosest3d'], scrollZoom:true});
+}
+
+/* ================= FIGURA "LEER EL MAPA": curvas apretadas vs separadas ================= */
+function medirEntreCurvas(m, x, y, dk){
+  const g=[m.fx(x,y), m.fy(x,y)], n=Math.hypot(g[0],g[1]); const u=[g[0]/n, g[1]/n]; const f0=m.f(x,y);
+  const kNext=Math.ceil(f0/dk+1e-9)*dk, kPrev=kNext-dk; let s1=0, s2=0;
+  while(s1<1.5){ s1+=0.0005; if(m.f(x+u[0]*s1, y+u[1]*s1) >= kNext) break; }
+  while(s2<1.5){ s2+=0.0005; if(m.f(x-u[0]*s2, y-u[1]*s2) <= kPrev) break; }
+  return { n, f0, kPrev, kNext, d:s1+s2, est:dk/(s1+s2), A:[x-u[0]*s2, y-u[1]*s2], B:[x+u[0]*s1, y+u[1]*s1], u };
+}
+const LECTURA = { modelo:'recip', dk:0.25, puntos:[[0.45,0.55],[0.56,0.82]] };
+function dibujarLecturaMapa(cv){
+  const m = MODELOS[LECTURA.modelo]; const {ctx,w,h} = prepararCanvas(cv, altoMapa(cv, m));
+  const geo = geoMapa(ctx, w, h, m); dibujarBandas(ctx, geo, m, {suave:true, bandas:9});
+  const {X,Y} = dibujarEjes(ctx, geo, etiquetaEje(m.vx), etiquetaEje(m.vy));
+  ctx.save(); ctx.beginPath(); ctx.rect(geo.l,geo.t,geo.w,geo.h); ctx.clip();
+  const M = malla(m); const niveles=[]; for(let k=Math.ceil(M.zminReal/LECTURA.dk)*LECTURA.dk; k<M.zmaxReal; k+=LECTURA.dk) niveles.push(k);
+  for(const k of niveles) trazarPolis(ctx, curvaNivel(m,k), X, Y, 'rgba(15,34,68,.6)', 1.3);
+  const nmax = Math.max(...LECTURA.puntos.map(P=>Math.hypot(m.fx(P[0],P[1]), m.fy(P[0],P[1])))); const Lmax = Math.min(geo.w,geo.h)*0.26;
+  LECTURA.puntos.forEach((P,i)=>{
+    const r = medirEntreCurvas(m, P[0], P[1], LECTURA.dk); const px=X(P[0]), py=Y(P[1]);
+    // segmento entre las dos curvas vecinas, por el camino más corto
+    // gradiente con largo proporcional al módulo (se dibuja primero: la cota de distancia va encima)
+    const L = Math.max(18, Lmax*r.n/nmax);
+    // cota entre las dos curvas vecinas, por el camino más corto: línea con halo y marcas perpendiculares en los extremos
+    const ax=X(r.A[0]), ay=Y(r.A[1]), bx=X(r.B[0]), by=Y(r.B[1]); const nx=-(by-ay), ny=(bx-ax); const nn=Math.hypot(nx,ny)||1; const tk=7;
+    for(const [col,lw] of [['rgba(255,255,255,.95)',6],[COL.blue,2.6]]){ ctx.strokeStyle=col; ctx.lineWidth=lw; ctx.setLineDash([]); ctx.lineCap='butt'; ctx.beginPath(); ctx.moveTo(ax,ay); ctx.lineTo(bx,by); for(const [qx,qy] of [[ax,ay],[bx,by]]){ ctx.moveTo(qx+nx/nn*tk, qy+ny/nn*tk); ctx.lineTo(qx-nx/nn*tk, qy-ny/nn*tk); } ctx.stroke(); }
+    flecha(ctx, px, py, px+r.u[0]*L, py-r.u[1]*L, COL.grad, 3, 11);
+    punto(ctx, px, py, COL.punto, 5, 'P'+(i+1));
+    const der = i===0; const tx = der ? px+18 : px-18; const al = der ? 'left' : 'right';
+    texto(ctx, `d ≈ ${fmt(r.d,3)} m entre las curvas ${fmt(r.kPrev,2)} y ${fmt(r.kNext,2)}`, tx, py+28, COL.blue, 'bold 11.5px Outfit, sans-serif', al);
+    texto(ctx, `${fmt(LECTURA.dk,2)} ÷ ${fmt(r.d,3)} ≈ ${fmt(r.est,1)}  ·  ‖∇C‖ = ${fmt(r.n,2)}`, tx, py+44, COL.grad, 'bold 11.5px Outfit, sans-serif', al);
+  });
+  ctx.restore();
+  texto(ctx, `curvas de nivel cada ${fmt(LECTURA.dk,2)} mol·L⁻¹`, geo.l+6, geo.t+15, '#334155', 'bold 11.5px Outfit, sans-serif');
+  barraColor(ctx, geo.l+6, geo.t+22, 110, 'C baja', 'C alta');
+}
+
+/* ===== 30_exploradores.js ===== */
+/* ================================================================
+   EXPLORADORES · "girar" (descubrimiento), "campo de gradientes", "reactor"
+   ================================================================ */
+const EXPLORADORES = {};
+function registrarEx(ex, cont){
+  ex.seccion = cont.closest('.tab-content') ? cont.closest('.tab-content').id : null;
+  EXPLORADORES[ex.id] = ex;
+}
+function panelModeloHTML(m){
+  return `<span class="bt">${m.tipo==='mat'?'Función':(m.letra?m.letra+'. ':'')+m.nombre}</span>${m.tipo==='mat'?'':`<p style="margin:0 0 4px">${m.contexto}</p>`}\\(${m.latex}\\)${m.tipo==='mat'?'':`<span class="nota"> · ${m.vx.sym}: ${m.vx.nombre} [${m.vx.ut}] · ${m.vy.sym}: ${m.vy.nombre} [${m.vy.ut}] · ${m.vz.sym}: ${m.vz.nombre} [${m.vz.ut}]</span>`}${m.desc?`<p class="nota" style="margin:4px 0 0">${m.desc}</p>`:''}${m.tipo!=='mat'?'<div class="nota-modelo">Modelo didáctico simplificado: no es una ley química real, pero se comporta como el fenómeno.</div>':''}`;
+}
+const uDer = m => m.vz.u && m.vx.u ? ' '+mi(unidadDerivada(m.vz.u, m.vx.u)) : '';
+
+/* ---------------- Explorador GIRAR ---------------- */
+function crearGiro(cfg){
+  const id = cfg.id, cont = $(cfg.cont || id);
+  const ex = { id, cfg, cont, m: MODELOS[cfg.modelo || 'placa'], a:0, b:0, th: cfg.th ?? 30, st:{ superficie:true, revelado: !!cfg.revelado, uirev:0, camara:null, tres: cfg.tres !== false }, visitados:new Set(), activo:false };
+  ex.a = cfg.a ?? ex.m.a0; ex.b = cfg.b ?? ex.m.b0;
+  registrarEx(ex, cont);
+  const conSel = Array.isArray(cfg.modelos) && cfg.modelos.length > 1, conDesc = cfg.descubrir !== false && !ex.st.revelado;
+  cont.innerHTML = `
+  <div class="ex-grid">
+    <div class="ex-col">
+      ${conSel ? `<div class="ctrl"><label>Función o modelo espacial<select id="${id}-sel">${cfg.modelos.map(k=>`<option value="${k}">${(MODELOS[k].letra?MODELOS[k].letra+' · ':'')+MODELOS[k].nombre}</option>`).join('')}</select></label></div>` : ''}
+      ${cfg.panelModelo !== false ? `<div id="${id}-panelM" class="box def" style="margin:0"></div>` : ''}
+      <div><canvas id="${id}-mapa" class="c2d" height="320" role="img" aria-label="mapa de curvas de nivel con el punto P y la dirección u"></canvas></div>
+      <div class="leyenda"><span class="txt">colores: claro = valores altos de la función, oscuro = bajos; líneas blancas: curvas de nivel</span><span style="--c:${COL.dir}">dirección u (gira con θ)</span><span style="--c:${COL.grad}">gradiente: crece más rápido</span><span style="--c:${COL.min}">decrece más rápido</span><span style="--c:${COL.nula}">derivada nula · curva de nivel por P</span></div>
+      ${ex.st.tres ? `<div class="vistas"><button data-tg="tres">Mostrar la superficie 3D con el corte en la dirección u</button></div><div id="${id}-3dwrap" style="display:none"><div id="${id}-3d" class="plot3d chico"></div><div class="leyenda"><span style="--c:${COL.corte}">corte vertical de la superficie a lo largo de u</span><span style="--c:${COL.dir}">tangente: su pendiente es D<sub>u</sub>f(P)</span></div><div class="vistas"><button data-v="3d">Vista 3D</button><button data-v="perfil">Ver el corte de perfil</button><button data-v="sup">Vista superior</button><button data-tg="superficie" class="on">Superficie</button></div></div>` : ''}
+    </div>
+    <div class="ex-col">
+      <div class="ctrl">
+        <label><span class="lv"><span>Punto P: <span class="mi"><i>${ex.m.vx.sym}</i></span> = <span class="mi"><i>a</i></span></span><span class="val" id="${id}-va"></span></span><input type="range" id="${id}-sa" aria-label="primera coordenada del punto"></label>
+        <label><span class="lv"><span>Punto P: <span class="mi"><i>${ex.m.vy.sym}</i></span> = <span class="mi"><i>b</i></span></span><span class="val" id="${id}-vb"></span></span><input type="range" id="${id}-sb" aria-label="segunda coordenada del punto"></label>
+        <label><span class="lv"><span>Ángulo <span class="mi"><i>θ</i></span> de la dirección <span class="mi"><span class="vec"><i>u</i></span> = (cos <i>θ</i> ; sen <i>θ</i>)</span></span><span class="val" id="${id}-vth"></span></span><input type="range" class="th" id="${id}-sth" min="0" max="360" step="1" aria-label="ángulo de la dirección"></label>
+      </div>
+      <div><canvas id="${id}-cos" class="c2d" height="230" role="img" aria-label="derivada direccional en función del ángulo"></canvas></div>
+      ${conDesc ? `<div class="descubrir" id="${id}-desc"><span class="bt">Registrar</span><p>Recorré toda la vuelta con el deslizador de \\(\\theta\\). Cuando la derivada te parezca <strong>máxima</strong>, dejá el deslizador ahí y apretá el botón.</p><div class="pred-btns"><button class="btn primary" id="${id}-breg">Acá la derivada es máxima</button></div><div id="${id}-descres"></div></div>` : ''}
+      <div id="${id}-lect"></div>
+      <div class="tools"><button class="btn sm" id="${id}-bint">¿Qué significa?</button></div><div id="${id}-interp" style="display:none"></div>
+    </div>
+  </div>`;
+  const on = (elId, ev, fn) => { const e = $(elId); if(e) e.addEventListener(ev, fn); };
+  on(`${id}-sel`, 'change', e => ex.setModelo(e.target.value));
+  on(`${id}-sa`, 'input', e => ex.setP(parseFloat(e.target.value), ex.b));
+  on(`${id}-sb`, 'input', e => ex.setP(ex.a, parseFloat(e.target.value)));
+  on(`${id}-sth`, 'input', e => ex.setTh(parseFloat(e.target.value)));
+  on(`${id}-breg`, 'click', () => ex.registrar());
+  on(`${id}-bint`, 'click', () => { const d=$(`${id}-interp`); d.style.display = d.style.display==='none'?'block':'none'; ex.pintarInterp(); });
+  cont.querySelectorAll('.vistas button[data-v]').forEach(bt => bt.addEventListener('click', () => ex.vista(bt.dataset.v)));
+  cont.querySelectorAll('.vistas button[data-tg]').forEach(bt => bt.addEventListener('click', () => { const k=bt.dataset.tg; if(k==='tres'){ const w=$(`${id}-3dwrap`); const abierto = w.style.display!=='none'; w.style.display = abierto?'none':'block'; bt.textContent = abierto ? 'Mostrar la superficie 3D con el corte en la dirección u' : 'Ocultar la superficie 3D'; bt.classList.toggle('on', !abierto); ex.dibujar3d(); return; } ex.st[k]=!ex.st[k]; bt.classList.toggle('on', ex.st[k]); ex.dibujar3d(); }));
+
+  ex.calc = () => calcDir(ex.m, ex.a, ex.b, ex.th);
+  ex.setModelo = function(k, a, b, th){ ex.m = MODELOS[k]; const s=$(`${id}-sel`); if(s) s.value=k; ex.a = a ?? ex.m.a0; ex.b = b ?? ex.m.b0; if(th !== undefined) ex.th = th; ex.visitados = new Set(); ex.st.uirev++; ex.st.camara=null; ex.pintarEtiquetas(); ex.pintarPanelM(); ex.refrescar(); };
+  ex.setP = function(a, b){ ex.a = clamp(a, ex.m.xmin, ex.m.xmax); ex.b = clamp(b, ex.m.ymin, ex.m.ymax); ex.visitados = new Set(); ex.refrescar(); };
+  ex.setTh = function(th){ ex.th = normAng(th); ex.visitados.add(Math.round(ex.th/2)*2); ex.refrescar(); };
+  ex.vista = function(v){ ex.st.uirev++; if(v==='3d') ex.st.camara = {eye:{x:1.3,y:-1.3,z:0.85}, up:{x:0,y:0,z:1}}; else if(v==='sup') ex.st.camara = {eye:{x:0,y:0,z:2.6}, up:{x:0,y:1,z:0}}; else if(v==='perfil'){ const c=ex.calc(); const nx=-c.u[1], ny=c.u[0]; ex.st.camara = {eye:{x:nx*1.9,y:ny*1.9,z:0.25}, up:{x:0,y:0,z:1}}; } ex.dibujar3d(); };
+  ex.registrar = function(){
+    const c = ex.calc(); const res = $(`${id}-descres`); if(!res) return;
+    if(c.nulo){ res.innerHTML = `<div class="fb info show">En este punto el gradiente es nulo: la derivada vale 0 en todas las direcciones y no hay máximo que registrar. Mové P y probá de nuevo.</div>`; return; }
+    const d = difAng(ex.th, c.angGrad); const acierto = d <= 12;
+    E.descubierto[id] = { th: ex.th, ok: acierto }; guardar(); ex.st.revelado = true;
+    res.innerHTML = `<div class="fb ${acierto?'ok':'no'} show">${acierto ? '<strong>Muy bien.</strong>' : '<strong>Cerca, pero no.</strong>'} Registraste \\(\\theta=${fmtT(ex.th,0)}^\\circ\\); la derivada es máxima en \\(\\theta=${fmtT(c.angGrad,1)}^\\circ\\)${acierto?'':`, a ${fmt(d,0)}° de tu registro`}. Ahora se ve el gradiente en rojo: <strong>apunta exactamente hacia ese ángulo</strong>. En la dirección opuesta la derivada es mínima, y a 90° vale cero. La curva completa es un coseno.</div>`;
+    $(`${id}-breg`).disabled = true; renderMath(res); ex.refrescar(); actualizarProgreso();
+  };
+  ex.pintarEtiquetas = function(){
+    const m = ex.m; const lbs = cont.querySelectorAll('.ctrl label .lv > span:first-child');
+    lbs[0].innerHTML = `Punto P: <span class="mi"><i>${m.vx.sym}</i></span> = <span class="mi"><i>a</i></span>`; lbs[1].innerHTML = `Punto P: <span class="mi"><i>${m.vy.sym}</i></span> = <span class="mi"><i>b</i></span>`;
+    const sa=$(`${id}-sa`), sb=$(`${id}-sb`); sa.min=m.xmin; sa.max=m.xmax; sa.step=(m.xmax-m.xmin)/100; sb.min=m.ymin; sb.max=m.ymax; sb.step=(m.ymax-m.ymin)/100;
+    if(cfg.libre){ sa.step='any'; sb.step='any'; $(`${id}-sth`).step='any'; }
+  };
+  ex.pintarPanelM = function(){ const d=$(`${id}-panelM`); if(!d) return; d.innerHTML = panelModeloHTML(ex.m); renderMath(d); };
+  ex.refrescar = function(){
+    const m=ex.m; const c = ex.calc();
+    $(`${id}-sa`).value=ex.a; $(`${id}-sb`).value=ex.b; $(`${id}-sth`).value=ex.th; $(`${id}-va`).textContent=fmt(ex.a)+(m.vx.ut?' '+m.vx.ut:''); $(`${id}-vb`).textContent=fmt(ex.b)+(m.vy.ut?' '+m.vy.ut:''); $(`${id}-vth`).textContent=fmt(ex.th,0)+'°';
+    ex.pintarLect(c); if(ex.activo){ dibujarMapaGiro($(`${id}-mapa`), m, c, ex.st); dibujarCoseno($(`${id}-cos`), m, c, ex.visitados, ex.st); ex.dibujar3d(); }
+    if($(`${id}-interp`) && $(`${id}-interp`).style.display!=='none') ex.pintarInterp();
+  };
+  ex.pintarLect = function(c){
+    const d=$(`${id}-lect`); if(!d) return; const m=ex.m; const oc=!ex.st.revelado; const V=v=>oc?'?':fmt(v,3);
+    const uz = m.vz.u ? ' '+mi(m.vz.u) : '', ud = uDer(m);
+    let h = `<div class="lects"><div class="lect"><div class="et">${mi(`${m.fn}(P)`)}${uz}</div><div class="v">${fmt(c.f0,3)}</div></div><div class="lect dir"><div class="et">${mi(`D_{\\vec u}${m.fn}(P)`)} en θ = ${fmt(ex.th,0)}°${ud}</div><div class="v">${fmt(c.Du,3)}</div></div><div class="lect grad ${oc?'oc':''}"><div class="et">${mi(m.symGrad+'(P)')}${ud}</div><div class="v">${oc?'( ? ; ? )':`(${fmt(c.fx,3)} ; ${fmt(c.fy,3)})`}</div></div><div class="lect grad ${oc?'oc':''}"><div class="et">${mi('\\|'+m.symGrad+'(P)\\|')}${ud}</div><div class="v">${V(c.n)}</div></div>${oc?'':`<div class="lect grad"><div class="et">ángulo del gradiente</div><div class="v">${c.nulo?'—':fmt(c.angGrad,1)+'°'}</div></div><div class="lect dir"><div class="et">${mi('\\varphi')} entre u y ∇${m.fn}</div><div class="v">${c.nulo?'—':fmt(c.phi,1)+'°'}</div></div><div class="lect res"><div class="et">${mi('\\|'+m.symGrad+'\\|\\cos\\varphi')}</div><div class="v">${c.nulo?'0':fmt(c.n*Math.cos(c.phi*DEG),3)}</div></div>`}</div>`;
+    if(!oc && !c.nulo) h += `<div class="aportes"><table><tbody><tr><td><span class="cgrad">Crece más rápido</span> en ${mi('\\vec u_{\\text{máx}}')} = (${fmt(c.umax[0],3)} ; ${fmt(c.umax[1],3)}), θ = ${fmt(c.angGrad,1)}°</td><td class="num">${mi('D')} = ${fmt(c.n,3)}</td></tr><tr><td><span class="cmin">Decrece más rápido</span> en ${mi('\\vec u_{\\text{mín}}')} = (${fmt(c.umin[0],3)} ; ${fmt(c.umin[1],3)}), θ = ${fmt(c.angMin,1)}°</td><td class="num">${mi('D')} = ${fmt(-c.n,3)}</td></tr><tr><td><span class="cnula">No cambia</span> en ${mi('\\pm\\vec u_{\\text{nula}}')} = ±(${fmt(c.unula[0][0],3)} ; ${fmt(c.unula[0][1],3)}), θ = ${fmt(c.angNula[0],1)}° y ${fmt(c.angNula[1],1)}°</td><td class="num">${mi('D')} = 0</td></tr></tbody></table></div>`;
+    if(!oc && c.nulo) h += `<div class="interp">Gradiente nulo en P: la derivada direccional vale 0 en todas las direcciones. Punto estacionario; con esta información no se sabe si es máximo, mínimo o silla.</div>`;
+    d.innerHTML = h; renderMath(d);
+  };
+  ex.pintarInterp = function(){ const d=$(`${id}-interp`); if(!d) return; d.innerHTML = `<div class="interp">${interpretarGiro(ex.m, ex.calc(), ex.st.revelado)}</div>`; };
+  ex.dibujar3d = function(){ const div=$(`${id}-3d`); if(!div || !ex.activo) return; const w=$(`${id}-3dwrap`); if(w && w.style.display==='none') return; dibujar3DGiro(div, ex.m, ex.calc(), ex.st); if(!ex._cam){ ex._cam=true; if(div.on) div.on('plotly_relayout', e => { if(e['scene.camera']) ex.st.camara = e['scene.camera']; }); } };
+  ex.redibujar = function(){ if(!ex.activo) return; const c=ex.calc(); dibujarMapaGiro($(`${id}-mapa`), ex.m, c, ex.st); dibujarCoseno($(`${id}-cos`), ex.m, c, ex.visitados, ex.st); const d3=$(`${id}-3d`); if(d3 && window.Plotly && d3.data) try{ Plotly.Plots.resize(d3); }catch(e){} };
+  ex.activar = function(){ if(ex.activo) return; const d=$(`${id}-mapa`); if(!d || !document.contains(d)){ delete EXPLORADORES[id]; return; } ex.activo = true; ex.refrescar(); requestAnimationFrame(()=>ex.redibujar()); };
+  ex.desactivar = function(){ if(!ex.activo) return; ex.activo = false; const d=$(`${id}-3d`); if(d && window.Plotly) setTimeout(()=>{ if(!ex.activo) try{ Plotly.purge(d); }catch(e){} }, 400); };
+  const prev = E.descubierto[id]; if(prev && conDesc){ ex.st.revelado = true; const res=$(`${id}-descres`); res.innerHTML = `<div class="fb info show">Ya registraste tu respuesta en una visita anterior (\\(\\theta=${fmtT(prev.th,0)}^\\circ\\)${prev.ok?', acertaste':''}). El gradiente está a la vista.</div>`; renderMath(res); $(`${id}-breg`).disabled = true; }
+  ex.pintarEtiquetas(); ex.pintarPanelM();
+  if(!ex.seccion || $(ex.seccion).classList.contains('active')) ex.activar();
+  return ex;
+}
+function interpretarGiro(m, c, revelado){
+  const X=m.vx.sym, Y=m.vy.sym, uz=m.vz.ut?' '+m.vz.ut:'', ux=m.vx.ut?' '+m.vx.ut:'';
+  const nomz = m.tipo==='mat' ? 'la función' : 'la '+m.vz.nombre;
+  const dirTxt = `la dirección que forma ${fmt(c.th,0)}° con el eje ${X}`;
+  let t = `En P = (${fmt(c.a)}${ux} ; ${fmt(c.b)}${m.vy.ut?' '+m.vy.ut:''}), ${nomz} vale ${fmt(c.f0,3)}${uz}. Si me muevo en ${dirTxt}, ${nomz} ${c.Du>1e-9?'sube':c.Du<-1e-9?'baja':'no cambia a primer orden'}${Math.abs(c.Du)>1e-9?` a razón de ${fmt(Math.abs(c.Du),3)}${uz} por ${m.vx.ut?'cada '+m.vx.ut:'unidad'} recorrida`:''}.`;
+  if(!revelado) return t + ' Girá la dirección y mirá cómo cambia ese ritmo: hay una dirección en la que es máximo.';
+  if(c.nulo) return t + ' Acá el gradiente es nulo: en cualquier dirección el ritmo es cero. No hay dirección privilegiada.';
+  return t + ` El máximo posible en P es ${fmt(c.n,3)}${uz} por ${m.vx.ut?'cada '+m.vx.ut:'unidad'}, y se alcanza en la dirección del gradiente (${fmt(c.angGrad,1)}°); el mínimo es ${fmt(-c.n,3)} en la opuesta; y a 90° del gradiente (${fmt(c.angNula[0],1)}° y ${fmt(c.angNula[1],1)}°) ${nomz} no cambia: son las tangentes a la curva de nivel. Con φ = ${fmt(c.phi,1)}°, ‖∇${m.fn}‖·cos φ = ${fmt(c.n*Math.cos(c.phi*DEG),3)}, que es exactamente el valor leído.`;
+}
+
+/* ---------------- Explorador CAMPO DE GRADIENTES ---------------- */
+function crearCampo(cfg){
+  const id = cfg.id, cont = $(cfg.cont || id);
+  const ex = { id, cfg, cont, m: MODELOS[cfg.modelo || 'elip2'], P: cfg.P || null, st:{ todas:false }, activo:false };
+  registrarEx(ex, cont);
+  const modelos = cfg.modelos || ['elip2','parab','silla','prod','gauss','placa','recip'];
+  cont.innerHTML = `<div class="ctrl"><label>Función o modelo<select id="${id}-sel">${modelos.map(k=>`<option value="${k}" ${k===ex.m.id?'selected':''}>${(MODELOS[k].letra?MODELOS[k].letra+' · ':'')+MODELOS[k].nombre}</option>`).join('')}</select></label></div>
+    <div><canvas id="${id}-mapa" class="c2d click" height="320" role="img" aria-label="mapa de curvas de nivel; tocá un punto para ver el gradiente" tabindex="0"></canvas></div>
+    <div class="vistas"><button data-tg="todas">Todas las flechas (campo de gradientes)</button></div>
+    <div class="leyenda"><span class="txt">colores: claro = valores altos, oscuro = bajos; cada línea gris es una curva de nivel, con su valor</span><span style="--c:${COL.grad}">gradiente en P</span><span style="--c:${COL.nula}">curva de nivel por P y su tangente</span></div>
+    <div id="${id}-lect"></div>`;
+  $(`${id}-sel`).addEventListener('change', e => { ex.m = MODELOS[e.target.value]; ex.P = null; ex.refrescar(); });
+  cont.querySelector('button[data-tg]').addEventListener('click', ev => { ex.st.todas = !ex.st.todas; ev.currentTarget.classList.toggle('on', ex.st.todas); ex.refrescar(); });
+  const cv = $(`${id}-mapa`);
+  const clic = ev => { const r = cv.getBoundingClientRect(); const x = (ev.clientX - r.left), y = (ev.clientY - r.top); const g = cv._geo; if(!g) return; if(x<g.l||x>g.l+g.w||y<g.t||y>g.t+g.h) return; const m=ex.m; ex.P = [m.xmin+(x-g.l)/g.w*(m.xmax-m.xmin), m.ymax-(y-g.t)/g.h*(m.ymax-m.ymin)]; ex.refrescar(); };
+  cv.addEventListener('pointerdown', clic); cv.addEventListener('pointermove', ev => { if(ev.buttons===1) clic(ev); });
+  ex.refrescar = function(){ if(!ex.activo) return; dibujarMapaCampo(cv, ex.m, ex.P, ex.st); const d=$(`${id}-lect`); const m=ex.m;
+    if(!ex.P){ d.innerHTML = `<p class="nota">Tocá o arrastrá sobre el mapa para elegir P.</p>`; return; }
+    const c = calcDir(m, ex.P[0], ex.P[1]); const ud = uDer(m);
+    d.innerHTML = c.nulo ? `<div class="interp">Gradiente nulo en P: no hay dirección perpendicular que señalar; la curva de nivel se reduce a un punto o se cruza a sí misma.</div>` :
+      `<div class="lects"><div class="lect"><div class="et">P</div><div class="v">(${fmt(c.a,2)} ; ${fmt(c.b,2)})</div></div><div class="lect grad"><div class="et">${mi(m.symGrad+'(P)')}${ud}</div><div class="v">(${fmt(c.fx,3)} ; ${fmt(c.fy,3)})</div></div><div class="lect"><div class="et">nivel ${mi(m.fn+'(P)')}</div><div class="v">${fmt(c.f0,3)}</div></div><div class="lect dir"><div class="et">${mi('\\vec t')} tangente a la curva de nivel (versor)</div><div class="v">±(${fmt(c.unula[0][0],3)} ; ${fmt(c.unula[0][1],3)})</div></div><div class="lect res"><div class="et">${mi(m.symGrad+'\\cdot\\vec t')}: derivada a lo largo de la curva, componente por componente</div><div class="v" style="font-size:1rem">${c.fx<0?"("+fmt(c.fx,3)+")":fmt(c.fx,3)}·(${fmt(c.unula[0][0],3)}) + ${c.fy<0?"("+fmt(c.fy,3)+")":fmt(c.fy,3)}·(${fmt(c.unula[0][1],3)}) = ${fmt(c.fx*c.unula[0][0]+c.fy*c.unula[0][1],6)}</div><div class="et" style="margin-top:3px">con los valores completos da 0 exacto; con los redondeados de pantalla puede quedar un resto en la cuarta cifra</div></div></div>`;
+    renderMath(d); };
+  ex.redibujar = ex.refrescar;
+  ex.activar = function(){ if(ex.activo) return; if(!document.contains(cv)){ delete EXPLORADORES[id]; return; } ex.activo = true; requestAnimationFrame(()=>ex.refrescar()); };
+  ex.desactivar = function(){ ex.activo = false; };
+  if(!ex.seccion || $(ex.seccion).classList.contains('active')) ex.activar();
+  return ex;
+}
+
+/* ---------------- Explorador REACTOR (ejes de distinta naturaleza) ---------------- */
+function crearReactor(cfg){
+  const id = cfg.id, cont = $(cfg.cont || id);
+  const ex = { id, cfg, cont, m: MODELOS[cfg.modelo || 'rend'], a:0, b:0, dx:0, dy:0, st:{ alt:false }, activo:false };
+  ex.a = cfg.a ?? ex.m.a0; ex.b = cfg.b ?? ex.m.b0; ex.dx = cfg.dx ?? 0; ex.dy = cfg.dy ?? 0;
+  registrarEx(ex, cont);
+  const modelos = cfg.modelos || ['rend','conc']; const conSel = modelos.length > 1;
+  cont.innerHTML = `
+  <div class="ex-grid">
+    <div class="ex-col">
+      ${conSel ? `<div class="ctrl"><label>Modelo<select id="${id}-sel">${modelos.map(k=>`<option value="${k}" ${k===ex.m.id?'selected':''}>${MODELOS[k].letra+' · '+MODELOS[k].nombre}</option>`).join('')}</select></label></div>` : ''}
+      <div id="${id}-panelM" class="box def" style="margin:0"></div>
+      <div><canvas id="${id}-mapa" class="c2d" height="330" role="img" aria-label="mapa de nivel del modelo con el paso elegido"></canvas></div>
+      <div class="leyenda"><span class="txt">colores: claro = valores altos, oscuro = bajos; líneas blancas: curvas de nivel</span><span style="--c:${COL.dir}">paso v = (Δ<span id="${id}-lx"></span> ; Δ<span id="${id}-ly"></span>)</span><span style="--c:${COL.nula}">dirección de cambio nulo (tangente a la curva de nivel)</span></div>
+    </div>
+    <div class="ex-col">
+      <div class="ctrl">
+        <label><span class="lv"><span>Punto P: <span id="${id}-la"></span></span><span class="val" id="${id}-va"></span></span><input type="range" id="${id}-sa" aria-label="primera coordenada del punto"></label>
+        <label><span class="lv"><span>Punto P: <span id="${id}-lb"></span></span><span class="val" id="${id}-vb"></span></span><input type="range" id="${id}-sb" aria-label="segunda coordenada del punto"></label>
+        <label><span class="lv"><span>Cambio Δ<span id="${id}-ldx"></span></span><span class="val" id="${id}-vdx"></span></span><input type="range" id="${id}-sdx" aria-label="cambio en la primera variable"></label>
+        <label><span class="lv"><span>Cambio Δ<span id="${id}-ldy"></span></span><span class="val" id="${id}-vdy"></span></span><input type="range" id="${id}-sdy" aria-label="cambio en la segunda variable"></label>
+      </div>
+      <div id="${id}-lect"></div>
+      <div class="tools"><button class="btn sm" id="${id}-bint">¿Qué significa?</button></div><div id="${id}-interp" style="display:none"></div>
+    </div>
+  </div>`;
+  const on = (elId, ev, fn) => { const e = $(elId); if(e) e.addEventListener(ev, fn); };
+  on(`${id}-sel`, 'change', e => ex.setModelo(e.target.value));
+  on(`${id}-sa`, 'input', e => { ex.a = parseFloat(e.target.value); ex.refrescar(); });
+  on(`${id}-sb`, 'input', e => { ex.b = parseFloat(e.target.value); ex.refrescar(); });
+  on(`${id}-sdx`, 'input', e => { ex.dx = parseFloat(e.target.value); ex.refrescar(); });
+  on(`${id}-sdy`, 'input', e => { ex.dy = parseFloat(e.target.value); ex.refrescar(); });
+  on(`${id}-bint`, 'click', () => { const d=$(`${id}-interp`); d.style.display = d.style.display==='none'?'block':'none'; ex.pintarInterp(); });
+  ex.calc = () => calcPaso(ex.m, ex.a, ex.b, ex.dx, ex.dy);
+  ex.setModelo = function(k, a, b, dx, dy){ ex.m = MODELOS[k]; const s=$(`${id}-sel`); if(s) s.value=k; ex.a = a ?? ex.m.a0; ex.b = b ?? ex.m.b0; ex.dx = dx ?? 0; ex.dy = dy ?? 0; ex.st.alt=false; ex.pintarEtiquetas(); ex.pintarPanelM(); ex.refrescar(); };
+  ex.pintarEtiquetas = function(){ const m=ex.m; const X=m.vx.sym, Y=m.vy.sym; $(`${id}-la`).innerHTML = mi(X); $(`${id}-lb`).innerHTML = mi(Y); $(`${id}-ldx`).innerHTML = mi(X); $(`${id}-ldy`).innerHTML = mi(Y); $(`${id}-lx`).innerHTML = mi(X); $(`${id}-ly`).innerHTML = mi(Y); 
+    const sa=$(`${id}-sa`), sb=$(`${id}-sb`), sx=$(`${id}-sdx`), sy=$(`${id}-sdy`); sa.min=m.xmin; sa.max=m.xmax; sa.step=(m.xmax-m.xmin)/160; sb.min=m.ymin; sb.max=m.ymax; sb.step=(m.ymax-m.ymin)/120; const rx=(m.xmax-m.xmin)*0.25, ry=(m.ymax-m.ymin)*0.25; sx.min=-rx; sx.max=rx; sx.step=rx/50; sy.min=-ry; sy.max=ry; sy.step=ry/50; if(cfg.libre){ ['sa','sb','sdx','sdy'].forEach(k=>$(`${id}-${k}`).step='any'); } };
+  ex.pintarPanelM = function(){ const d=$(`${id}-panelM`); if(!d) return; d.innerHTML = panelModeloHTML(ex.m); renderMath(d); };
+  ex.refrescar = function(){
+    const m=ex.m; const c=ex.calc(); $(`${id}-sa`).value=ex.a; $(`${id}-sb`).value=ex.b; $(`${id}-sdx`).value=ex.dx; $(`${id}-sdy`).value=ex.dy;
+    $(`${id}-va`).textContent=fmt(ex.a)+' '+m.vx.ut; $(`${id}-vb`).textContent=fmt(ex.b)+' '+m.vy.ut; $(`${id}-vdx`).textContent=(ex.dx>=0?'+':'')+fmt(ex.dx)+' '+m.vx.ut; $(`${id}-vdy`).textContent=(ex.dy>=0?'+':'')+fmt(ex.dy)+' '+m.vy.ut;
+    ex.pintarLect(c); if(ex.activo) dibujarMapaReactor($(`${id}-mapa`), m, c, ex.st);
+    if($(`${id}-interp`) && $(`${id}-interp`).style.display!=='none') ex.pintarInterp();
+  };
+  ex.pintarLect = function(c){
+    const d=$(`${id}-lect`); const m=ex.m; const X=m.vx.sym, Y=m.vy.sym; const uz = m.vz.u ? ' '+mi(m.vz.u) : ''; const k = ex.st.alt && m.vy.alt ? m.vy.alt.k : 1; const uy = ex.st.alt && m.vy.alt ? m.vy.alt.u : m.vy.u; const uyt = ex.st.alt && m.vy.alt ? m.vy.alt.ut : m.vy.ut;
+    const fyk = c.fy/k, dyk = c.dy*k; const angDib = Math.atan2(fyk, c.fx)/DEG;
+    let h = `<div class="lects"><div class="lect"><div class="et">${mi(`${m.fn}(P)`)}${uz}</div><div class="v">${fmt(c.f0,3)}</div></div><div class="lect grad"><div class="et">${mi(m.symFx)} ${mi(m.uFx)}</div><div class="v">${fmt(c.fx,4)}</div></div><div class="lect grad"><div class="et">${mi(m.symFy)} ${mi(unidadDerivada(m.vz.u, uy))}</div><div class="v">${fmt(fyk,6)}</div></div></div>`;
+    h += `<div class="aportes"><table><thead><tr><th>Aporte</th><th>sensibilidad × cambio</th><th style="text-align:right">${mi(m.vz.u||'')}</th></tr></thead><tbody>
+      <tr><td>de ${mi(X)}</td><td>${fmt(c.fx,4)} × (${fmt(c.dx)})</td><td class="num ${c.ax>1e-9?'cpos':c.ax<-1e-9?'cneg':''}">${fmt(c.ax,3)}</td></tr>
+      <tr><td>de ${mi(Y)}</td><td>${fmt(fyk,6)} × (${fmt(dyk)} ${uyt})</td><td class="num ${c.ay>1e-9?'cpos':c.ay<-1e-9?'cneg':''}">${fmt(c.ay,3)}</td></tr>
+      <tr class="tot"><td>${mi(`D_{\\vec v}${m.fn}(P)=${m.symGrad}\\cdot\\vec v`)}</td><td>${c.Dv>1e-9?'sube':c.Dv<-1e-9?'baja':'no cambia a primer orden'}</td><td class="num">${fmt(c.Dv,3)}</td></tr>
+      <tr><td>Cambio real ${mi(`${m.fn}(Q)-${m.fn}(P)`)}</td><td>el modelo se curva: difiere del lineal</td><td class="num">${fmt(c.dReal,3)}</td></tr>
+      <tr><td><span class="cnula">Para que no cambie</span></td><td colspan="2">${isFinite(c.comp) ? `con Δ${X} = ${fmt(c.dx)} ${m.vx.ut} haría falta Δ${Y} = ${fmt(c.comp*c.dx,3)} ${m.vy.ut} &nbsp;(${fmt(c.comp,3)} ${m.vy.ut} por cada ${m.vx.ut})` : 'la sensibilidad a '+Y+' es cero: no se puede compensar con '+Y}</td></tr></tbody></table></div>`;
+    d.innerHTML = h; renderMath(d);
+  };
+  ex.pintarInterp = function(){ const d=$(`${id}-interp`); if(!d) return; const m=ex.m, c=ex.calc(); const X=m.vx.sym, Y=m.vy.sym; const uz=m.vz.ut?' '+m.vz.ut:'';
+    d.innerHTML = `<div class="interp">En P la sensibilidad a ${X} es ${fmt(c.fx,4)} ${m.vz.ut} por ${m.vx.ut} y la sensibilidad a ${Y} es ${fmt(c.fy,4)} ${m.vz.ut} por ${m.vy.ut}: son magnitudes distintas y no se comparan entre sí. Lo que se compara son los efectos: cambiar ${X} en ${fmt(c.dx)} ${m.vx.ut} aporta ${fmt(c.ax,3)}${uz}; cambiar ${Y} en ${fmt(c.dy)} ${m.vy.ut} aporta ${fmt(c.ay,3)}${uz}. Suma: ${fmt(c.Dv,3)}${uz}, así que con ese paso ${m.vz.nombre} ${c.Dv>1e-9?'sube':c.Dv<-1e-9?'baja':'no cambia a primer orden'}. ${isFinite(c.comp)?'Para que no cambie con ese Δ'+X+', '+Y+' tendría que moverse '+fmt(c.comp*c.dx,3)+' '+m.vy.ut+': es la línea verde.':''}</div>`; };
+  ex.redibujar = function(){ if(ex.activo) dibujarMapaReactor($(`${id}-mapa`), ex.m, ex.calc(), ex.st); };
+  ex.activar = function(){ if(ex.activo) return; const d=$(`${id}-mapa`); if(!d || !document.contains(d)){ delete EXPLORADORES[id]; return; } ex.activo = true; ex.refrescar(); requestAnimationFrame(()=>ex.redibujar()); };
+  ex.desactivar = function(){ ex.activo = false; };
+  ex.pintarEtiquetas(); ex.pintarPanelM();
+  if(!ex.seccion || $(ex.seccion).classList.contains('active')) ex.activar();
+  return ex;
+}
+function crearLecturaMapa(cfg){
+  const cont=$(cfg.id); const m=MODELOS[LECTURA.modelo];
+  const r = LECTURA.puntos.map(P=>medirEntreCurvas(m, P[0], P[1], LECTURA.dk));
+  cont.innerHTML = `<div><canvas id="${cfg.id}-cv" class="c2d" height="320" role="img" aria-label="mapa de nivel con dos puntos: curvas apretadas y separadas"></canvas></div><p class="nota" style="margin:6px 0 0">Colores: claro = concentración alta, oscuro = baja (la barra de arriba a la izquierda da la escala); las líneas grises son las curvas de nivel. Flecha roja: el gradiente, con largo proporcional a ‖∇C‖. Cota azul: la distancia entre las dos curvas vecinas, por el camino más corto. En P₁ las curvas están apretadas: de una a la siguiente hay ${fmt(r[0].d,3)} m, así que ${fmt(LECTURA.dk,2)} ÷ ${fmt(r[0].d,3)} ≈ ${fmt(r[0].est,1)} mol·L⁻¹ por metro, y el gradiente calculado da ${fmt(r[0].n,2)}. En P₂ están separadas: ${fmt(r[1].d,3)} m, ${fmt(LECTURA.dk,2)} ÷ ${fmt(r[1].d,3)} ≈ ${fmt(r[1].est,1)}, y el gradiente da ${fmt(r[1].n,2)}. La lectura del mapa y la cuenta coinciden; difieren un poco porque el gradiente cambia entre una curva y la otra.</p>`;
+  const ex = { id:cfg.id, seccion: cont.closest('.tab-content') ? cont.closest('.tab-content').id : null, activo:false, activar(){ if(this.activo) return; this.activo=true; requestAnimationFrame(()=>dibujarLecturaMapa($(`${cfg.id}-cv`))); }, desactivar(){ this.activo=false; }, redibujar(){ if(this.activo) dibujarLecturaMapa($(`${cfg.id}-cv`)); } };
+  EXPLORADORES[cfg.id]=ex; if(!ex.seccion || $(ex.seccion).classList.contains('active')) ex.activar(); return ex;
+}
+window.__plotlyListo = function(){ Object.values(EXPLORADORES).forEach(ex => { if(ex.activo && ex.dibujar3d) ex.dibujar3d(); }); };
+function activarExploradoresDe(s){ for(const k in EXPLORADORES){ const ex=EXPLORADORES[k]; if(ex.seccion===s) ex.activar(); } }
+function desactivarExploradoresDe(s){ for(const k in EXPLORADORES){ const ex=EXPLORADORES[k]; if(ex.seccion===s) ex.desactivar(); } }
+
+/* ===== 40_actividades.js ===== */
+/* ================================================================
+   ACTIVIDADES · ejercicios (mc / num / multi), predicción de 8 direcciones, visor modal, pasos
+   ================================================================ */
+const EJ = {};
+function rotarOpciones(e){
+  if(e.tipo !== 'mc' || e._rot !== undefined) return;
+  let h = 0; for(const ch of e.id) h = (h*31 + ch.charCodeAt(0)) % 1000003;
+  const n = e.opciones.length, r = h % n; e._rot = r;
+  e.opciones = e.opciones.slice(r).concat(e.opciones.slice(0,r));
+  e.correcta = (e.correcta - r + n) % n;
+  if(Array.isArray(e.fbNo)) e.fbNo = e.fbNo.slice(r).concat(e.fbNo.slice(0,r));
+}
+function ejercicioHTML(e){
+  rotarOpciones(e);
+  EJ[e.id] = e;
+  const st = E.ejercicios[e.id] || {ok:false,intentos:0};
+  let inter = '';
+  if(e.tipo === 'mc'){
+    inter = `<div class="opts">${e.opciones.map((o,j)=>`<button class="opt" data-ej="${e.id}" data-j="${j}" ${st.ok?'disabled':''}><span class="k">${'ABCDE'[j]}</span><span>${o}</span></button>`).join('')}</div>`;
+  } else if(e.tipo === 'num'){
+    inter = `<div class="numin">${e.prefijo?`<span class="lb">${e.prefijo}</span>`:''}<input type="text" inputmode="decimal" id="${e.id}-inp" placeholder="valor" aria-label="respuesta" ${st.ok?'disabled':''}>${e.sufijo?`<span class="lb">${e.sufijo}</span>`:''}<button class="btn sm primary" data-num="${e.id}" ${st.ok?'disabled':''}>Comprobar</button></div>`;
+  } else if(e.tipo === 'multi'){
+    inter = `<div class="numin">${e.campos.map((c,j)=>`<span class="lb">${c.et}</span><input type="text" inputmode="decimal" id="${e.id}-inp${j}" aria-label="${c.aria||'respuesta'}" ${st.ok?'disabled':''}>`).join('')}<button class="btn sm primary" data-multi="${e.id}" ${st.ok?'disabled':''}>Comprobar</button></div>`;
+  }
+  const habil = st.ok || st.intentos > 0;
+  return `<div class="q" id="card-${e.id}">
+    <div class="qn"><span class="k">${e.etiqueta||e.id.toUpperCase()}</span><span class="enq">${e.enunciado}</span>${st.ok?'<span class="badge ok">✔ resuelto</span>':''}</div>
+    ${inter}
+    <div class="fb ${st.ok?'ok show':''}" id="${e.id}-fb">${st.ok?e.fbOk:''}</div>
+    <div class="tools no-print">
+      ${e.resol?`<button class="btn sm" data-res="${e.id}" ${habil?'':'disabled title="Primero intentá responder"'}>Ver resolución paso a paso</button>`:''}
+      ${e.ver?`<button class="btn sm" data-ver="${e.id}" ${habil?'':'disabled title="Se habilita después de tu primer intento"'}>Ver en el gráfico</button>`:''}
+    </div>
+    <div class="resol" id="${e.id}-res">${e.resol||''}</div>
+  </div>`;
+}
+function estadoEj(id){ if(!E.ejercicios[id]) E.ejercicios[id]={ok:false,intentos:0}; return E.ejercicios[id]; }
+function marcarResuelto(id){ const c=$('card-'+id); if(c && !c.querySelector('.badge.ok')) c.querySelector('.qn').insertAdjacentHTML('beforeend','<span class="badge ok">✔ resuelto</span>'); actualizarProgreso(); }
+function habilitarResol(id){ const c=$('card-'+id); if(!c) return; c.querySelectorAll(`[data-res="${id}"],[data-ver="${id}"]`).forEach(b=>{ b.disabled=false; b.removeAttribute('title'); }); }
+function textoPista(e, st, j){
+  const fb = e.fbNo;
+  if(fb && fb.pistas){ const i=Math.min(st.intentos-1, fb.pistas.length-1); return `<strong>Pista ${i+1}:</strong> ${fb.pistas[i]}`; }
+  if(Array.isArray(fb)) return fb[j] || fb.find(t=>t) || '';
+  return fb || 'Revisá el planteo e intentá de nuevo.';
+}
+function responderMC(id,j){
+  const e=EJ[id], st=estadoEj(id); if(st.ok) return;
+  st.intentos++; const ok = j===e.correcta;
+  const fb=$(id+'-fb'), btn=$('card-'+id).querySelector(`.opt[data-j="${j}"]`);
+  if(ok){ st.ok=true; $$('#card-'+id+' .opt').forEach(b=>b.disabled=true); btn.classList.add('right'); fb.className='fb ok show'; fb.innerHTML=e.fbOk; marcarResuelto(id); }
+  else { btn.classList.add('wrong'); setTimeout(()=>btn.classList.remove('wrong'),1500); fb.className='fb no show'; fb.innerHTML=textoPista(e,st,j); }
+  habilitarResol(id); guardar(); renderMath(fb);
+}
+function leerNum(v){ const s = String(v).trim().replace(',', '.').replace('−','-'); return /^[-+]?(\d+\.?\d*|\.\d+)([eE][-+]?\d+)?$/.test(s) ? parseFloat(s) : NaN; }
+function responderNum(id){
+  const e=EJ[id], st=estadoEj(id); if(st.ok) return;
+  const inp=$(id+'-inp'); const v=leerNum(inp.value); const fb=$(id+'-fb');
+  if(isNaN(v)){ fb.className='fb no show'; fb.innerHTML='Ingresá un solo número, con coma o punto decimal (sin fracciones ni operaciones: calculalas antes).'; return; }
+  st.intentos++;
+  const tol = e.tol ?? Math.max(1e-6, Math.abs(e.respuesta)*0.02);
+  if(Math.abs(v-e.respuesta)<=tol){ st.ok=true; inp.disabled=true; $('card-'+id).querySelector(`[data-num="${id}"]`).disabled=true; fb.className='fb ok show'; fb.innerHTML=e.fbOk; marcarResuelto(id); }
+  else { fb.className='fb no show'; fb.innerHTML=(e.diag && e.diag(v)) || textoPista(e,st); }
+  habilitarResol(id); guardar(); renderMath(fb);
+}
+function responderMulti(id){
+  const e=EJ[id], st=estadoEj(id); if(st.ok) return;
+  const vals = e.campos.map((c,j)=>leerNum($(`${id}-inp${j}`).value)); const fb=$(id+'-fb');
+  if(vals.some(isNaN)){ fb.className='fb no show'; fb.innerHTML='Completá todos los campos con un solo número cada uno, con coma o punto decimal (sin fracciones ni operaciones).'; return; }
+  st.intentos++;
+  const malos = e.campos.map((c,j)=> Math.abs(vals[j]-c.r) > (c.tol ?? Math.max(1e-6,Math.abs(c.r)*0.02)) ? c.nombre||c.et : null).filter(Boolean);
+  if(!malos.length){ st.ok=true; e.campos.forEach((c,j)=>$(`${id}-inp${j}`).disabled=true); $('card-'+id).querySelector(`[data-multi="${id}"]`).disabled=true; fb.className='fb ok show'; fb.innerHTML=e.fbOk; marcarResuelto(id); }
+  else { fb.className='fb no show'; fb.innerHTML=(e.diag && e.diag(vals)) || `Revisá: ${malos.join(', ')}. ${textoPista(e,st)}`; }
+  habilitarResol(id); guardar(); renderMath(fb);
+}
+function verResol(id){ const st=estadoEj(id); if(!st.ok && st.intentos===0) return; const r=$(id+'-res'); r.classList.toggle('show'); if(r.classList.contains('show')){ st.resol=true; guardar(); } renderMath(r); }
+
+/* ---------- delegación de eventos ---------- */
+document.addEventListener('click', ev => {
+  const b = ev.target.closest('button, .acc-h, [data-ir]'); if(!b) return;
+  if(b.dataset.ej !== undefined){ responderMC(b.dataset.ej, parseInt(b.dataset.j)); return; }
+  if(b.dataset.num){ responderNum(b.dataset.num); return; }
+  if(b.dataset.multi){ responderMulti(b.dataset.multi); return; }
+  if(b.dataset.res){ verResol(b.dataset.res); return; }
+  if(b.dataset.ver){ const e=EJ[b.dataset.ver]; const st=estadoEj(b.dataset.ver); if(st.ok || st.intentos>0) abrirVisor(e.ver); return; }
+  if(b.dataset.visor){ try{ abrirVisor(JSON.parse(b.dataset.visor)); }catch(e){} return; }
+  if(b.dataset.ir){ irA(b.dataset.ir); return; }
+  if(b.classList.contains('acc-h')){ b.parentElement.classList.toggle('open'); renderMath(b.parentElement); return; }
+});
+document.addEventListener('keydown', ev => { if(ev.key==='Enter' && ev.target.classList && ev.target.classList.contains('acc-h')){ ev.target.parentElement.classList.toggle('open'); } if(ev.key==='Escape') cerrarVisor(); });
+document.addEventListener('keydown', ev => { if(ev.key==='Enter' && ev.target.tagName==='INPUT'){ const b = ev.target.closest('.numin') && ev.target.closest('.numin').querySelector('button'); if(b) b.click(); } });
+
+/* ---------- visor flotante "Ver en el gráfico" ---------- */
+let _visorEx = null;
+function abrirVisor(v){
+  const cont=$('visor-cont'); cont.innerHTML = `<div id="visor-ex"></div>`;
+  $('visor').classList.add('show');
+  if(_visorEx){ _visorEx.desactivar(); delete EXPLORADORES[_visorEx.id]; }
+  if(v.q){ _visorEx = crearReactor({ id:'visor-ex', modelo:v.q, a:v.a, b:v.b, dx:v.dx||0, dy:v.dy||0, modelos:[v.q], libre:true }); }
+  else _visorEx = crearGiro({ id:'visor-ex', modelo:v.m, a:v.a, b:v.b, th:v.th ?? 30, modelos:false, revelado: v.rev !== 0, descubrir:false, tres:true, libre:true });
+  _visorEx.seccion = null; _visorEx.activar();
+}
+function cerrarVisor(){ $('visor').classList.remove('show'); if(_visorEx){ _visorEx.desactivar(); } }
+document.addEventListener('DOMContentLoaded', () => { $('visor-cerrar').addEventListener('click', cerrarVisor); $('visor').addEventListener('click', ev => { if(ev.target === $('visor')) cerrarVisor(); }); });
+
+/* ---------- predicción de inicio: ocho direcciones ---------- */
+function crearPred8(cfg){
+  const {id, modelo, P} = cfg; const m = MODELOS[modelo]; const cont = $(id);
+  const c = calcDir(m, P[0], P[1]);
+  const mejor = DIR8.reduce((b, d) => difAng(c.angGrad, d[1]) < difAng(c.angGrad, b[1]) ? d : b, DIR8[0]);
+  const prev = E.predicciones[id];
+  cont.innerHTML = `<div><canvas id="${id}-cv" class="c2d" height="300" role="img" aria-label="mapa de concentración con ocho direcciones desde P"></canvas></div><p class="nota" style="margin:6px 0 2px">P = (${fmt(P[0])} m ; ${fmt(P[1])} m). Los colores claros son concentraciones altas; las líneas blancas, curvas de nivel.</p><div class="pred-btns" id="${id}-btns">${DIR8.map(d=>`<button class="btn" data-p="${d[0]}">${d[0]}</button>`).join('')}</div><div id="${id}-res"></div>`;
+  cont._pred = {m, P, c, mejor}; cont._elegida = prev || null;
+  cont.querySelectorAll('button[data-p]').forEach(bt => bt.addEventListener('click', () => registrarPred8(id, bt.dataset.p)));
+  cont._dibujar = () => dibujarPred8($(`${id}-cv`), m, P, cont._elegida, !!cont._elegida);
+  if(prev) registrarPred8(id, prev, true); else cont._dibujar();
+  EXPLORADORES['pred8-'+id] = { id:'pred8-'+id, seccion: cont.closest('.tab-content').id, activo:true, activar(){ this.activo=true; cont._dibujar(); }, desactivar(){ this.activo=false; }, redibujar(){ cont._dibujar(); } };
+}
+function registrarPred8(id, p, silencioso){
+  const cont=$(id), d=cont._pred; E.predicciones[id]=p; guardar(); cont._elegida = p;
+  cont.querySelectorAll('button[data-p]').forEach(bt=>{ bt.disabled=true; bt.classList.toggle('on', bt.dataset.p===p); });
+  const acierto = p===d.mejor[0]; const r=$(id+'-res');
+  r.innerHTML = `<div class="fb ${acierto?'ok':'no'} show"><strong>${acierto?'Bien leído el mapa.':'El mapa dice otra cosa.'}</strong> La flecha roja es el gradiente \\(\\nabla C(P)\\): la dirección en la que la concentración crece más rápido, a ${fmt(d.c.angGrad,0)}° del eje \\(x\\), es decir hacia el ${d.mejor[0]}, rumbo al foco. En esta página vas a ver por qué el gradiente apunta justo ahí, qué pasa en la dirección contraria y en cuáles la lectura no cambia.</div>`;
+  renderMath(r); cont._dibujar(); actualizarProgreso();
+}
+
+/* ---------- pasos desplegables ---------- */
+function pasos(titulo, lista, resultado, abierto){
+  return `<div class="acc teo ${abierto?'open':''}"><div class="acc-h" tabindex="0"><span class="acc-t">${titulo}</span><span class="chev">▼</span></div><div class="acc-b">${lista.map((p,i)=>`<div class="acc step open"><div class="acc-h" tabindex="0"><span class="sn">${i+1}</span><span class="acc-t">${p[0]}</span><span class="chev">▼</span></div><div class="acc-b">${p[1]}</div></div>`).join('')}${resultado?`<div class="box okb" style="margin-top:8px"><span class="bt">Resultado</span>${resultado}</div>`:''}</div></div>`;
+}
+
+/* ===== 50_contenido.js ===== */
+/* ================================================================
+   CONTENIDO · ejemplos paso a paso, ejercicios, inicialización de secciones, navegación
+   ================================================================ */
+const INIT = {};
+const R_ = String.raw;
+const par = (v,d) => v < 0 ? `(${fmtT(v,d)})` : fmtT(v,d);
+const sq = v => { const r = Math.sqrt(v); return Number.isInteger(r) ? String(r) : `\\sqrt{${fmtT(v)}}\\approx${fmtT(r,3)}`; };
+
+function pasosDirecciones(m, a, b, titulo, abierto){
+  const c = calcDir(m,a,b); const X=m.vx.sym, Y=m.vy.sym, F=m.fn; const quim = m.tipo!=='mat';
+  const ux = m.vx.ut?' '+m.vx.ut:'', uz = m.vz.ut?' '+m.vz.ut:''; const uD = quim ? `\\ \\tfrac{\\text{${m.vz.ut}}}{\\text{${m.vx.ut}}}` : '';
+  const n2 = c.fx*c.fx+c.fy*c.fy; const nTex = sq(n2);
+  const v3 = v => fmtT(v,3);
+  return pasos(titulo, [
+    ['Gradiente en el punto', `\\(${m.latexFx}\\) y \\(${m.latexFy}\\). En \\(P=(${fmtT(a)}\\,;\\,${fmtT(b)})\\)${quim?` (${m.tipo==='esp'?`posición en metros`:`${m.vx.nombre} ${fmt(a)}${ux}, ${m.vy.nombre} ${fmt(b)}${m.vy.ut?' '+m.vy.ut:''}`})`:''}: \\[${m.symGrad}(P)=(${fmtT(c.fx)}\\,;\\,${fmtT(c.fy)})${quim?`\\ \\tfrac{\\text{${m.vz.ut}}}{\\text{${m.vx.ut}}}`:''}.\\] Es un vector del plano de las variables, no un número. Todo lo que sigue sale de él.`],
+    ['Módulo del gradiente: la máxima razón de cambio', `\\[\\|${m.symGrad}(P)\\|=\\sqrt{${par(c.fx)}^2+${par(c.fy)}^2}=${nTex}${uD}.\\] Ese número es la <strong>derivada direccional máxima</strong> en \\(P\\): en ninguna dirección \\(${F}\\) cambia más rápido que ${fmt(c.n,3)}${uz} por ${m.vx.ut?'cada '+m.vx.ut:'unidad'} recorrida.`],
+    ['Dirección de máximo crecimiento: el gradiente normalizado', `\\[\\vec u_{\\text{máx}}=\\frac{${m.symGrad}(P)}{\\|${m.symGrad}(P)\\|}=\\left(\\frac{${fmtT(c.fx)}}{${nTex.split('\\approx')[0]}}\\,;\\,\\frac{${fmtT(c.fy)}}{${nTex.split('\\approx')[0]}}\\right)${Number.isInteger(Math.sqrt(n2))?`=(${fmtT(c.umax[0],3)}\\,;\\,${fmtT(c.umax[1],3)})`:`\\approx(${v3(c.umax[0])}\\,;\\,${v3(c.umax[1])})`}.\\] Es un versor: \\(${fmtT(c.umax[0],3)}^2+(${fmtT(c.umax[1],3)})^2=1\\). Si el enunciado pide "la dirección", esta es la respuesta, no \\((${fmtT(c.fx)}\\,;\\,${fmtT(c.fy)})\\).`],
+    ['Dirección de máximo decrecimiento: la opuesta', `\\[\\vec u_{\\text{mín}}=-\\vec u_{\\text{máx}}=(${fmtT(-c.umax[0],3)}\\,;\\,${fmtT(-c.umax[1],3)}),\\qquad D_{\\vec u_{\\text{mín}}}${F}(P)=-${nTex.split('\\approx')[0]}${uD}.\\] El valor mínimo es negativo: \\(${F}\\) decrece a ${fmt(c.n,3)}${uz} por ${m.vx.ut?'cada '+m.vx.ut:'unidad'}.`],
+    ['Direcciones de derivada nula: las perpendiculares', `Un vector perpendicular a \\((${fmtT(c.fx)}\\,;\\,${fmtT(c.fy)})\\) es \\((${quim?`-${F}_${Y}\\,;\\,${F}_${X}`:'-f_y\\,;\\,f_x'})=(${fmtT(-c.fy)}\\,;\\,${fmtT(c.fx)})\\), con el mismo módulo. Normalizando: \\[\\vec u_{\\text{nula}}=\\pm(${fmtT(c.unula[0][0],3)}\\,;\\,${fmtT(c.unula[0][1],3)}).\\] Son <strong>dos</strong> direcciones opuestas, y son las tangentes a la curva de nivel \\(${F}=${fmtT(c.f0)}\\) que pasa por \\(P\\): a lo largo de esa curva \\(${F}\\) vale siempre ${fmt(c.f0)}, es decir, no cambia, que es exactamente lo que dice derivada direccional nula.`],
+    ['Verificar con el producto escalar', `\\[${m.symGrad}(P)\\cdot\\vec u_{\\text{máx}}=${par(c.fx)}\\cdot${par(c.umax[0],3)}+${par(c.fy)}\\cdot${par(c.umax[1],3)}=${fmtT(c.fx*c.umax[0]+c.fy*c.umax[1],3)}=\\|${m.symGrad}(P)\\|\\] \\[${m.symGrad}(P)\\cdot\\vec u_{\\text{nula}}=${par(c.fx)}\\cdot${par(c.unula[0][0],3)}+${par(c.fy)}\\cdot${par(c.unula[0][1],3)}=0.\\] ${quim?`Lectura: si el sensor se mueve 5 cm en la dirección del gradiente, \\(\\Delta ${F}\\approx${fmtT(c.n,3)}\\cdot0{,}05=${fmtT(c.n*0.05,3)}\\)${uz}; el modelo exacto da ${fmt(m.f(a+0.05*c.umax[0], b+0.05*c.umax[1])-c.f0,3)}${uz}. Y 5 cm a lo largo de la curva de nivel: ${fmt(m.f(a+0.05*c.unula[0][0], b+0.05*c.unula[0][1])-c.f0,4)}${uz}, casi nada.`:'Las cuentas cierran: máximo en el gradiente, cero en su perpendicular.'}`]
+  ], `Máximo \\(${nTex.split('\\approx')[0]}\\) en \\((${fmtT(c.umax[0],3)}\\,;\\,${fmtT(c.umax[1],3)})\\); mínimo \\(-${nTex.split('\\approx')[0]}\\) en \\((${fmtT(-c.umax[0],3)}\\,;\\,${fmtT(-c.umax[1],3)})\\); nula en \\(\\pm(${fmtT(c.unula[0][0],3)}\\,;\\,${fmtT(c.unula[0][1],3)})\\).`, abierto);
+}
+function pasosCompensar(m, a, b, dx, titulo, abierto){
+  const p = calcPaso(m, a, b, dx, 0); const X=m.vx.sym, Y=m.vy.sym, F=m.fn; const dy = p.comp*dx; const q = calcPaso(m,a,b,dx,dy);
+  return pasos(titulo, [
+    ['La pregunta, en símbolos', `Queremos un cambio \\(\\vec v=(\\Delta ${X}\\,;\\,\\Delta ${Y})\\) que deje \\(${F}\\) igual a primer orden: \\(D_{\\vec v}${F}(P)=0\\). Con \\(\\Delta ${X}=${fmtT(dx)}\\) ${m.vx.ut} dado, la incógnita es \\(\\Delta ${Y}\\).`],
+    ['Gradiente en el punto de operación', `\\(${m.latexFx}\\), \\(${m.latexFy}\\). En \\(P=(${fmtT(a)}\\,;\\,${fmtT(b)})\\): \\(${m.symFx}=${fmtT(p.fx)}\\) ${mi(m.uFx)} y \\(${m.symFy}=${fmtT(p.fy)}\\) ${mi(m.uFy)}.`],
+    ['Plantear el producto escalar igual a cero', `\\[D_{\\vec v}${F}=${par(p.fx)}\\cdot\\Delta ${X}+${par(p.fy)}\\cdot\\Delta ${Y}=0\\quad\\Longrightarrow\\quad \\Delta ${Y}=-\\frac{${par(p.fx)}}{${par(p.fy)}}\\,\\Delta ${X}=${fmtT(p.comp,4)}\\,\\Delta ${X}.\\]`],
+    ['Responder con unidades', `Para \\(\\Delta ${X}=${fmtT(dx)}\\) ${m.vx.ut}: \\(\\Delta ${Y}=${fmtT(dy,3)}\\) ${m.vy.ut}. La regla general: <strong>cada ${m.vx.ut} de más en \\(${X}\\) se compensa con ${fmt(p.comp,3)} ${m.vy.ut} en \\(${Y}\\)</strong>. El vector \\((${fmtT(dx)}\\,;\\,${fmtT(dy,3)})\\) es tangente a la curva de nivel \\(${F}=${fmtT(p.f0)}\\).`],
+    ['Comprobar contra el modelo', `\\(${F}(${fmtT(a+dx)}\\,;\\,${fmtT(b+dy,3)})=${fmtT(q.fQ,3)}\\) frente a \\(${F}(P)=${fmtT(p.f0)}\\): diferencia ${fmt(q.dReal,3)} ${m.vz.ut}. No es exactamente cero porque la compensación es de primer orden: la curva de nivel se curva y la recta tangente se despega de ella. Para pasos chicos, la diferencia es despreciable.`]
+  ], `\\(\\Delta ${Y}=${fmtT(p.comp,4)}\\,\\Delta ${X}\\): con \\(\\Delta ${X}=${fmtT(dx)}\\) ${m.vx.ut}, \\(\\Delta ${Y}=${fmtT(dy,3)}\\) ${m.vy.ut}.`, abierto);
+}
+
+/* ---------- Ejercicios: se definen acá para contar el total ---------- */
+const EJ_GIRO = [
+  { id:'b1-1', tipo:'mc', etiqueta:'B1.1', enunciado:R_`En un punto \(P\), \(\|\nabla f(P)\|=5\). Para direcciones unitarias \(\vec u\), ¿qué valores puede tomar \(D_{\vec u}f(P)\)?`, opciones:['Cualquier número entre \\(-5\\) y \\(5\\), según el ángulo con el gradiente.','Cualquier número entre \\(0\\) y \\(5\\): una derivada direccional no puede ser negativa.','Solo \\(5\\): la derivada direccional en \\(P\\) es \\(\\|\\nabla f(P)\\|\\).'], correcta:0,
+    fbOk:'Sí: \\(D_{\\vec u}f=5\\cos\\varphi\\) recorre todo el intervalo \\([-5\\,;\\,5]\\) al girar \\(\\vec u\\). El \\(5\\) es en la dirección del gradiente; el \\(-5\\), en la opuesta; el \\(0\\), a 90°.', fbNo:{pistas:['Mirá la curva del coseno del explorador: ¿cuál es su valor más bajo?','\\(D_{\\vec u}f=\\|\\nabla f\\|\\cos\\varphi\\), y \\(\\cos\\varphi\\) va de \\(-1\\) a \\(1\\).']} },
+  { id:'b1-2', tipo:'num', etiqueta:'B1.2', enunciado:R_`En \(P\), \(\nabla f(P)=(3\,;\,4)\). Calculá \(D_{\vec u}f(P)\) para una dirección unitaria que forma un ángulo de \(60^\circ\) con el gradiente.`, respuesta:2.5, tol:0.02,
+    fbOk:'Sí: \\(\\|\\nabla f(P)\\|=\\sqrt{9+16}=5\\) y \\(D_{\\vec u}f=5\\cos60^\\circ=5\\cdot\\dfrac{1}{2}=2{,}5\\). No hizo falta conocer \\(\\vec u\\): alcanza con el ángulo.', fbNo:{pistas:['Primero el módulo del gradiente: \\(\\sqrt{3^2+4^2}\\).','\\(D_{\\vec u}f=\\|\\nabla f\\|\\cos\\varphi\\) con \\(\\varphi=60^\\circ\\).']}, diag:v => Math.abs(v-5)<0.02 ? 'Ese es el módulo del gradiente: la derivada máxima, en la dirección del gradiente. A 60° del gradiente vale menos.' : Math.abs(v-4.33)<0.03 ? 'Usaste el seno. La fórmula lleva el coseno del ángulo con el gradiente.' : null,
+    resol:'\\[\\|\\nabla f(P)\\|=\\sqrt{3^2+4^2}=5,\\qquad D_{\\vec u}f(P)=\\|\\nabla f(P)\\|\\cos\\varphi=5\\cdot\\cos60^\\circ=5\\cdot\\frac{1}{2}=2{,}5\\]', ver:{m:'parab',a:1.5,b:2,th:113.13,rev:1} }
+];
+const EJ_DIR = [
+  { id:'b2-1', tipo:'multi', etiqueta:'B2.1', enunciado:R_`Para \(f(x,y)=x\,y^2\) en \(P=(2\,;\,1)\): hallá la derivada direccional máxima y el versor en el que se alcanza.`, campos:[{et:'máximo =',r:Math.sqrt(17),tol:0.01,nombre:'el máximo'},{et:'\\(u_1=\\)',r:1/Math.sqrt(17),tol:0.005,nombre:'la primera componente'},{et:'\\(u_2=\\)',r:4/Math.sqrt(17),tol:0.005,nombre:'la segunda componente'}],
+    fbOk:'Correcto: \\(f_x=y^2=1\\), \\(f_y=2xy=4\\); \\(\\|\\nabla f\\|=\\sqrt{17}\\approx4{,}123\\); \\(\\vec u_{\\text{máx}}=\\left(\\dfrac{1}{\\sqrt{17}}\\,;\\,\\dfrac{4}{\\sqrt{17}}\\right)\\approx(0{,}243\\,;\\,0{,}970)\\).', fbNo:{pistas:['Gradiente: \\(f_x=y^2\\), \\(f_y=2xy\\), evaluados en \\((2\\,;\\,1)\\).','El máximo es \\(\\|\\nabla f(P)\\|=\\sqrt{1^2+4^2}\\); el versor, el gradiente dividido por ese módulo.']}, diag:vals => (Math.abs(vals[1]-1)<0.01 && Math.abs(vals[2]-4)<0.01) ? 'Diste el gradiente sin normalizar. "El versor" tiene módulo 1: dividí cada componente por \\(\\sqrt{17}\\).' : null,
+    resol:'\\[\\nabla f=(y^2\\,;\\,2xy)\\Rightarrow\\nabla f(2,1)=(1\\,;\\,4),\\qquad\\|\\nabla f(2,1)\\|=\\sqrt{17}\\approx4{,}123\\]\\[\\vec u_{\\text{máx}}=\\frac{(1\\,;\\,4)}{\\sqrt{17}}\\approx(0{,}243\\,;\\,0{,}970)\\]' },
+  { id:'b2-2', tipo:'mc', etiqueta:'B2.2', enunciado:R_`En \(P\), \(\nabla f(P)=(-2\,;\,6)\). ¿En qué dirección unitaria \(f\) decrece más rápido, y cuánto vale ahí la derivada?`, opciones:['\\(\\vec u=\\dfrac{(2\\,;\\,-6)}{\\sqrt{40}}\\), con \\(D_{\\vec u}f=-\\sqrt{40}\\).','\\(\\vec u=\\dfrac{(6\\,;\\,2)}{\\sqrt{40}}\\), con \\(D_{\\vec u}f=0\\).','\\(\\vec u=(2\\,;\\,-6)\\), con \\(D_{\\vec u}f=-40\\).'], correcta:0,
+    fbOk:'Sí: la opuesta al gradiente, normalizada, y el valor \\(-\\|\\nabla f\\|=-\\sqrt{40}\\approx-6{,}32\\). El vector \\((2\\,;\\,-6)\\) sin normalizar da \\(-40\\), que es \\(D_{\\vec v}f\\) según el vector, no la derivada direccional; y \\((6\\,;\\,2)\\) es una dirección de derivada nula.', fbNo:{pistas:['Decrece más rápido en \\(-\\dfrac{\\nabla f}{\\|\\nabla f\\|}\\).','El valor mínimo es \\(-\\|\\nabla f(P)\\|\\): un número negativo del tamaño del módulo.']} },
+  { id:'b2-3', tipo:'multi', etiqueta:'B2.3', enunciado:R_`Con \(\nabla f(P)=(3\,;\,4)\), da la dirección unitaria de derivada nula que tiene primera componente positiva.`, campos:[{et:'\\(u_1=\\)',r:0.8,tol:0.005,nombre:'la primera componente'},{et:'\\(u_2=\\)',r:-0.6,tol:0.005,nombre:'la segunda componente'}],
+    fbOk:'Sí: \\((4\\,;\\,-3)\\) es perpendicular a \\((3\\,;\\,4)\\) y normalizado da \\((0{,}8\\,;\\,-0{,}6)\\). La otra dirección de derivada nula es \\((-0{,}8\\,;\\,0{,}6)\\). Comprobación: \\(3\\cdot0{,}8+4\\cdot(-0{,}6)=0\\).', fbNo:{pistas:['Perpendicular a \\((a\\,;\\,b)\\): \\((-b\\,;\\,a)\\) o \\((b\\,;\\,-a)\\).','Normalizá el vector perpendicular que encontraste: dividilo por su módulo.']}, diag:vals => (Math.abs(vals[0]-0.6)<0.01 && Math.abs(vals[1]-0.8)<0.01) ? 'Ese es el versor del gradiente: la dirección de máximo crecimiento, no la nula.' : (Math.abs(vals[0]-4)<0.01 && Math.abs(vals[1]+3)<0.01) ? 'Perpendicular, sí, pero sin normalizar: dividí por 5.' : null,
+    resol:'\\[(3\\,;\\,4)\\perp(4\\,;\\,-3)\\ \\text{porque}\\ 3\\cdot4+4\\cdot(-3)=0;\\qquad \\|(4\\,;\\,-3)\\|=5\\Rightarrow\\vec u_{\\text{nula}}=(0{,}8\\,;\\,-0{,}6)\\]', ver:{m:'parab',a:1.5,b:2,th:323.13,rev:1} }
+];
+const EJ_REACTOR = [
+  { id:'b3-1', tipo:'num', etiqueta:'B3.1', enunciado:R_`Rendimiento \(R(T,C)\) en \((45\ ^\circ\text{C}\,;\,1\ \text{mol}\cdot\text{L}^{-1})\), con \(\nabla R=(0{,}6\,;\,6)\). Si la temperatura sube 1 °C, ¿cuánto tiene que cambiar la concentración (en \(\text{mol}\cdot\text{L}^{-1}\), con signo) para que el rendimiento no cambie a primer orden?`, respuesta:-0.1, tol:0.005,
+    fbOk:'Sí: \\(0{,}6\\cdot1+6\\cdot\\Delta C=0\\Rightarrow\\Delta C=-0{,}1\\). Cada grado de más se compensa bajando la concentración \\(0{,}1\\ \\text{mol}\\cdot\\text{L}^{-1}\\): el vector \\((1\\,;\\,-0{,}1)\\) es tangente a la curva de nivel. El modelo exacto da \\(R(46\\,;\\,0{,}9)-R(45\\,;\\,1)=-0{,}08\\): casi cero.', fbNo:{pistas:['Plantear \\(D_{\\vec v}R=R_T\\,\\Delta T+R_C\\,\\Delta C=0\\).','\\(0{,}6\\cdot1+6\\cdot\\Delta C=0\\): despejá \\(\\Delta C\\).']}, diag:v => Math.abs(v-0.1)<0.005 ? 'El signo: si calentar suma rendimiento y la concentración también suma, para compensar hay que bajarla.' : Math.abs(v+10)<0.1 ? 'Dividiste al revés: \\(\\Delta C=-\\dfrac{0{,}6}{6}\\), no \\(-\\dfrac{6}{0{,}6}\\).' : null,
+    resol:'\\[D_{\\vec v}R=0{,}6\\cdot\\Delta T+6\\cdot\\Delta C=0\\ \\Rightarrow\\ \\Delta C=-\\frac{0{,}6}{6}\\,\\Delta T=-0{,}1\\,\\Delta T\\]', ver:{q:'rend',a:45,b:1,dx:1,dy:-0.1} },
+  { id:'b3-3', tipo:'mc', etiqueta:'B3.3', enunciado:R_`En un punto \(P\) se verifica \(\nabla f(P)=\vec 0\). ¿Qué se puede afirmar?`, opciones:['Que \\(D_{\\vec u}f(P)=0\\) en toda dirección: es un punto estacionario, que puede ser máximo, mínimo o silla.','Que \\(f\\) tiene un máximo en \\(P\\): ninguna dirección hace crecer a \\(f\\).','Que hay dos direcciones de derivada nula y ninguna de máximo crecimiento.'], correcta:0,
+    fbOk:'Sí. Con gradiente nulo la derivada es cero en <em>todas</em> las direcciones (no solo en dos), y eso pasa en cimas, valles y sillas por igual: \\(x^2-y^2\\) en el origen tiene gradiente nulo y no es máximo ni mínimo.', fbNo:{pistas:['Si \\(\\nabla f=\\vec 0\\), \\(D_{\\vec u}f=\\vec 0\\cdot\\vec u=0\\) para cualquier \\(\\vec u\\).','Mirá la silla en el origen en el explorador: gradiente nulo, y sin embargo sube por un lado y baja por el otro.']}, ver:{m:'silla',a:0,b:0,th:30,rev:1} }
+];
+const PRACTICA = [
+  { titulo:'Nivel 1 · Reconocer', desc:'Qué es cada cosa: número, vector, versor; cuántas direcciones; qué pide el enunciado.', ej:[
+    { id:'p1-1', tipo:'mc', etiqueta:'1.1', enunciado:R_`Un enunciado pide "la máxima razón de cambio de \(f\) en \(P\)". ¿Qué hay que responder?`, opciones:['Un número: \\(\\|\\nabla f(P)\\|\\).','Un vector: \\(\\nabla f(P)\\).','Un versor: \\(\\dfrac{\\nabla f(P)}{\\|\\nabla f(P)\\|}\\).'], correcta:0, fbOk:'Sí: la razón de cambio es una derivada, un número. El versor es la respuesta a "en qué dirección ocurre"; el gradiente sin normalizar no responde a ninguna de las dos preguntas.', fbNo:{pistas:['"Razón de cambio" es sinónimo de derivada: ¿número o vector?']} },
+    { id:'p1-2', tipo:'mc', etiqueta:'1.2', enunciado:R_`En un punto con \(\nabla f(P)\neq\vec 0\), ¿cuántas direcciones unitarias tienen derivada direccional nula?`, opciones:['Dos, opuestas entre sí y perpendiculares al gradiente.','Una: la perpendicular al gradiente.','Infinitas: todas las que no son la del gradiente.'], correcta:0, fbOk:'Sí: \\(\\vec u\\) y \\(-\\vec u\\), las dos tangentes a la curva de nivel. Si \\(\\vec u\\) da cero, su opuesta también.', fbNo:{pistas:['Si \\(\\nabla f\\cdot\\vec u=0\\), ¿cuánto vale \\(\\nabla f\\cdot(-\\vec u)\\)?']} },
+    { id:'p1-3', tipo:'mc', etiqueta:'1.3', enunciado:R_`¿Cuál de estas afirmaciones sobre un punto con \(\nabla f(P)\neq\vec 0\) es correcta?`, opciones:['La derivada direccional mínima es \\(-\\|\\nabla f(P)\\|\\), en la dirección opuesta al gradiente.','La derivada direccional mínima es \\(0\\), en las direcciones perpendiculares al gradiente.','La derivada direccional máxima es el vector \\(\\nabla f(P)\\).'], correcta:0, fbOk:'Sí. El cero es un valor intermedio de la curva del coseno, no su mínimo; y el máximo es un número, \\(\\|\\nabla f(P)\\|\\), no un vector.', fbNo:{pistas:['Releé la tabla de errores frecuentes: "el mínimo es 0" y "el máximo es el gradiente" están ahí.']} }
+  ]},
+  { titulo:'Nivel 2 · Calcular', desc:'Gradiente, módulo, versores máximo, mínimo y nulos; un caso con unidades.', ej:[
+    { id:'p2-1', tipo:'multi', etiqueta:'2.1', enunciado:R_`\(f(x,y)=x^2+xy+y^2\) en \(P=(1\,;\,2)\). Calculá la derivada direccional máxima y la mínima.`, campos:[{et:'máxima =',r:Math.sqrt(41),tol:0.01,nombre:'la máxima'},{et:'mínima =',r:-Math.sqrt(41),tol:0.01,nombre:'la mínima'}], fbOk:'Correcto: \\(\\nabla f=(2x+y\\,;\\,x+2y)=(4\\,;\\,5)\\), \\(\\|\\nabla f\\|=\\sqrt{41}\\approx6{,}403\\); máxima \\(6{,}403\\), mínima \\(-6{,}403\\).', fbNo:{pistas:['\\(f_x=2x+y\\), \\(f_y=x+2y\\); evaluá en \\((1\\,;\\,2)\\).','Máxima \\(=\\|\\nabla f(P)\\|\\); mínima, la misma con signo menos.']}, diag:vals => Math.abs(vals[1])<0.01 ? 'La mínima no es cero: es \\(-\\|\\nabla f(P)\\|\\), en la dirección opuesta al gradiente.' : null, resol:'\\[\\nabla f(1,2)=(2\\cdot1+2\\,;\\,1+2\\cdot2)=(4\\,;\\,5),\\qquad\\|\\nabla f\\|=\\sqrt{41}\\approx6{,}403\\]\\[\\text{máxima}=6{,}403\\ \\text{en}\\ \\tfrac{(4\\,;\\,5)}{\\sqrt{41}},\\qquad\\text{mínima}=-6{,}403\\ \\text{en}\\ -\\tfrac{(4\\,;\\,5)}{\\sqrt{41}}\\]' },
+    { id:'p2-2', tipo:'multi', etiqueta:'2.2', enunciado:R_`\(f(x,y)=2x^2+y^2\) en \(P=(2\,;\,3)\). Hallá el versor de máximo crecimiento.`, campos:[{et:'\\(u_1=\\)',r:0.8,tol:0.005,nombre:'la primera componente'},{et:'\\(u_2=\\)',r:0.6,tol:0.005,nombre:'la segunda componente'}], fbOk:'Sí: \\(\\nabla f=(4x\\,;\\,2y)=(8\\,;\\,6)\\), módulo 10, versor \\((0{,}8\\,;\\,0{,}6)\\). Ahí \\(D_{\\vec u}f=10\\).', fbNo:{pistas:['\\(f_x=4x\\), \\(f_y=2y\\).','Normalizá: dividí el gradiente por su módulo.']}, diag:vals => (Math.abs(vals[0]-8)<0.01 && Math.abs(vals[1]-6)<0.01) ? 'Es el gradiente; el versor se obtiene dividiendo por su módulo, 10.' : null, resol:'\\[\\nabla f(2,3)=(8\\,;\\,6),\\quad\\|\\nabla f\\|=10,\\quad\\vec u_{\\text{máx}}=(0{,}8\\,;\\,0{,}6)\\]', ver:{m:'elip2',a:2,b:3,th:36.87,rev:1} },
+    { id:'p2-3', tipo:'multi', etiqueta:'2.3', enunciado:R_`\(f(x,y)=x\,y\) en \(P=(2\,;\,1)\). Da la dirección unitaria de derivada nula con primera componente positiva.`, campos:[{et:'\\(u_1=\\)',r:2/Math.sqrt(5),tol:0.005,nombre:'la primera componente'},{et:'\\(u_2=\\)',r:-1/Math.sqrt(5),tol:0.005,nombre:'la segunda componente'}], fbOk:'Sí: \\(\\nabla f=(y\\,;\\,x)=(1\\,;\\,2)\\); perpendicular \\((2\\,;\\,-1)\\), módulo \\(\\sqrt5\\); versor \\(\\approx(0{,}894\\,;\\,-0{,}447)\\). Es la tangente a la hipérbola \\(xy=2\\) en \\(P\\).', fbNo:{pistas:['Gradiente \\((1\\,;\\,2)\\): perpendicular \\((2\\,;\\,-1)\\).','Normalizá el vector perpendicular que encontraste.']}, resol:'\\[\\nabla f(2,1)=(1\\,;\\,2),\\quad(2\\,;\\,-1)\\perp(1\\,;\\,2),\\quad\\vec u_{\\text{nula}}=\\frac{(2\\,;\\,-1)}{\\sqrt5}\\approx(0{,}894\\,;\\,-0{,}447)\\]', ver:{m:'prod',a:2,b:1,th:333.43,rev:1} },
+    { id:'p2-4', tipo:'multi', etiqueta:'2.4', enunciado:R_`Placa calefactora \(T(x,y)=320+20x-15y+10xy\) (K, con \(x\), \(y\) en m). En \(P=(0{,}3\,;\,0{,}4)\): ¿cuál es la máxima rapidez con que sube la temperatura, en \(\text{K}\cdot\text{m}^{-1}\)? ¿Y cuánto vale \(D_{\vec u}T(P)\) para \(\vec u=(0{,}6\,;\,0{,}8)\)?`, campos:[{et:'máxima =',r:12*Math.sqrt(5),tol:0.05,nombre:'la máxima'},{et:'\\(D_{\\vec u}T=\\)',r:4.8,tol:0.05,nombre:'la derivada en u'}], fbOk:'Sí: \\(\\nabla T=(20+10y\\,;\\,-15+10x)=(24\\,;\\,-12)\\), \\(\\|\\nabla T\\|=\\sqrt{720}\\approx26{,}83\\ \\text{K}\\cdot\\text{m}^{-1}\\). En \\(\\vec u=(0{,}6\\,;\\,0{,}8)\\): \\(24\\cdot0{,}6-12\\cdot0{,}8=4{,}8\\ \\text{K}\\cdot\\text{m}^{-1}\\), mucho menos que el máximo porque \\(\\vec u\\) está lejos del gradiente.', fbNo:{pistas:['\\(T_x=20+10y\\), \\(T_y=-15+10x\\) en \\((0{,}3\\,;\\,0{,}4)\\).','Máxima \\(=\\sqrt{24^2+12^2}\\); en \\(\\vec u\\), producto escalar \\(24\\cdot0{,}6+(-12)\\cdot0{,}8\\).']}, diag:vals => Math.abs(vals[1]-24)<0.1 ? 'Perdiste el signo de \\(T_y=-12\\): es \\(24\\cdot0{,}6+(-12)\\cdot0{,}8\\), no \\(24\\cdot0{,}6+12\\cdot0{,}8\\).' : null, resol:'\\[\\nabla T(0{,}3\\,;\\,0{,}4)=(24\\,;\\,-12),\\quad\\|\\nabla T\\|=\\sqrt{720}\\approx26{,}83,\\quad D_{\\vec u}T=24\\cdot0{,}6+(-12)\\cdot0{,}8=4{,}8\\]', ver:{m:'placa',a:0.3,b:0.4,th:53.13,rev:1} }
+  ]},
+  { titulo:'Nivel 3 · Interpretar', desc:'Situaciones de proceso: compensar, comparar propuestas, decidir qué sobrevive a un cambio de unidades.', ej:[
+    { id:'p3-1', tipo:'num', etiqueta:'3.1', enunciado:R_`Gas disuelto \(C(T,P)=200+4P-0{,}05\,T\,P\) (\(\text{mmol}\cdot\text{L}^{-1}\); \(T\) en °C, \(P\) en kPa) en \((40\,;\,200)\). La temperatura va a subir 3 °C. ¿Cuánto hay que aumentar la presión, en kPa, para que la concentración no cambie a primer orden?`, respuesta:15, tol:0.2,
+      fbOk:'Sí: \\(C_T=-0{,}05\\cdot200=-10\\), \\(C_P=4-0{,}05\\cdot40=2\\); \\(-10\\cdot3+2\\cdot\\Delta P=0\\Rightarrow\\Delta P=15\\ \\text{kPa}\\): 5 kPa por cada grado. El modelo exacto da \\(C(43\\,;\\,215)-C(40\\,;\\,200)=-2{,}25\\), chico frente a 600.', fbNo:{pistas:['Evaluá \\(C_T=-0{,}05P\\) y \\(C_P=4-0{,}05T\\) en \\((40\\,;\\,200)\\).','\\(C_T\\cdot3+C_P\\cdot\\Delta P=0\\).']}, diag:v => Math.abs(v+15)<0.2 ? 'El signo: calentar expulsa gas (\\(C_T<0\\)); para compensar hay que <em>presurizar</em>, \\(\\Delta P>0\\).' : Math.abs(v-5)<0.2 ? 'Esa es la compensación por cada grado; la temperatura sube 3 °C.' : null,
+      resol:'\\[C_T(40,200)=-10,\\quad C_P(40,200)=2,\\qquad -10\\cdot3+2\\,\\Delta P=0\\Rightarrow\\Delta P=15\\ \\text{kPa}\\]', ver:{q:'conc',a:40,b:200,dx:3,dy:15} },
+    { id:'p3-2', tipo:'mc', etiqueta:'3.2', enunciado:R_`Rendimiento en \((45\,;\,1)\), \(\nabla R=(0{,}6\,;\,6)\). ¿Cuál de estos cambios \((\Delta T\,;\,\Delta C)\) deja el rendimiento sin cambio a primer orden?`, opciones:['\\((+1\\,;\\,-0{,}1)\\)','\\((+1\\,;\\,+0{,}1)\\)','\\((-1\\,;\\,-0{,}1)\\)','\\((+0{,}1\\,;\\,-1)\\)'], correcta:0,
+      fbOk:'Sí: \\(0{,}6\\cdot1+6\\cdot(-0{,}1)=0\\). Los otros dan \\(+1{,}2\\), \\(-1{,}2\\) y \\(-5{,}94\\). Un aumento de temperatura se compensa con una baja de concentración, en proporción \\(10:1\\).', fbNo:{pistas:['Calculá \\(\\nabla R\\cdot\\vec v=0{,}6\\,\\Delta T+6\\,\\Delta C\\) para cada opción.','Los dos aportes tienen que cancelarse: signos opuestos y mismo tamaño.']}, ver:{q:'rend',a:45,b:1,dx:1,dy:-0.1} },
+    { id:'p3-3', tipo:'num', etiqueta:'3.3', enunciado:R_`Gas disuelto \(C(T,P)=200+4P-0{,}05\,T\,P\) en el punto de operación de la clase, \((25\ ^\circ\text{C}\,;\,150\ \text{kPa})\). Por una falla del enfriador la temperatura va a subir 4 °C. ¿Cuánto hay que aumentar la presión, en kPa, para que la concentración no cambie a primer orden?`, respuesta:120/11, tol:0.15,
+      fbOk:'Sí: \\(C_T=-0{,}05\\cdot150=-7{,}5\\), \\(C_P=4-0{,}05\\cdot25=2{,}75\\); \\(-7{,}5\\cdot4+2{,}75\\,\\Delta P=0\\Rightarrow\\Delta P=\\dfrac{30}{2{,}75}\\approx10{,}9\\ \\text{kPa}\\): unos 2,7 kPa por cada grado. Comparalo con el ejercicio 3.1: en \\((40\\,;\\,200)\\) hacían falta 5 kPa por grado. La compensación depende del punto de operación, porque el gradiente cambia de un punto a otro.', fbNo:{pistas:['Evaluá \\(C_T=-0{,}05P\\) y \\(C_P=4-0{,}05T\\) en \\((25\\,;\\,150)\\): no en \\((40\\,;\\,200)\\).','\\(C_T\\cdot4+C_P\\cdot\\Delta P=0\\): despejá \\(\\Delta P\\).']}, diag:v => Math.abs(v-20)<0.2 ? 'Usaste las sensibilidades de \\((40\\,;\\,200)\\). En \\((25\\,;\\,150)\\) son otras: evaluá de nuevo.' : Math.abs(v-2.727)<0.1 ? 'Esa es la compensación por cada grado; la temperatura sube 4 °C.' : Math.abs(v+10.9)<0.2 ? 'El signo: calentar expulsa gas, así que para compensar hay que presurizar.' : null,
+      resol:'\\[C_T(25,150)=-7{,}5,\\quad C_P(25,150)=2{,}75,\\qquad -7{,}5\\cdot4+2{,}75\\,\\Delta P=0\\Rightarrow\\Delta P=\\frac{30}{2{,}75}\\approx10{,}9\\ \\text{kPa}\\]', ver:{q:'conc',a:25,b:150,dx:4,dy:120/11} }
+  ]},
+  { titulo:'Desafíos', desc:'Dos problemas para quien termina antes o para seguir en casa.', ej:[
+    { id:'d1', tipo:'multi', etiqueta:'D1', enunciado:R_`En un punto \(P\) se midió la derivada direccional en dos direcciones: \(D_{(1\,;\,0)}f(P)=3\) y \(D_{(0\,;\,1)}f(P)=4\). Sin conocer \(f\), hallá la derivada direccional máxima en \(P\) y el ángulo (en grados, entre 0° y 360°, medido desde el eje \(x\)) de la dirección en que se alcanza.`, campos:[{et:'máxima =',r:5,tol:0.02,nombre:'la máxima'},{et:'ángulo =',r:53.13,tol:0.3,nombre:'el ángulo'}],
+      fbOk:'Sí: las derivadas en las direcciones de los ejes son las parciales, así que \\(\\nabla f(P)=(3\\,;\\,4)\\): máxima \\(5\\), en \\(\\theta=\\arctan\\dfrac43\\approx53{,}13^\\circ\\). Dos derivadas direccionales en direcciones independientes determinan el gradiente, y con él todas las demás.', fbNo:{pistas:['\\(D_{(1;0)}f=f_x\\) y \\(D_{(0;1)}f=f_y\\): ya tenés el gradiente.','El ángulo de \\((3\\,;\\,4)\\): \\(\\tan\\theta=\\dfrac{4}{3}\\).']}, resol:'\\[\\nabla f(P)=(f_x\\,;\\,f_y)=(3\\,;\\,4),\\quad\\|\\nabla f(P)\\|=5,\\quad\\theta=\\arctan\\frac{4}{3}\\approx53{,}13^\\circ\\]', ver:{m:'parab',a:1.5,b:2,th:53.13,rev:1} },
+    { id:'d2', tipo:'multi', etiqueta:'D2', enunciado:R_`Placa calefactora, \(P=(0{,}5\,;\,0{,}4)\), donde \(\nabla T=(24\,;\,-10)\ \text{K}\cdot\text{m}^{-1}\). Un sensor da un paso de 10 cm en la dirección de máximo crecimiento y luego, desde el mismo \(P\), un paso de 10 cm a lo largo de la curva de nivel. Estimá con la derivada direccional el cambio de temperatura en cada caso (en K) y después compará con lo que dice el modelo: ¿por qué la segunda estimación no coincide exactamente con el valor real?`, campos:[{et:'\\(\\Delta T_{\\text{máx}}\\approx\\)',r:2.6,tol:0.02,nombre:'el primer cambio'},{et:'\\(\\Delta T_{\\text{nivel}}\\approx\\)',r:0,tol:0.02,nombre:'el segundo cambio'}],
+      fbOk:'Sí: \\(\\Delta T\\approx\\|\\nabla T\\|\\cdot h=26\\cdot0{,}1=2{,}6\\ \\text{K}\\) y \\(\\Delta T\\approx0\\cdot0{,}1=0\\). El modelo exacto da \\(2{,}564\\ \\text{K}\\) y \\(0{,}036\\ \\text{K}\\): la curva de nivel es curva, y la tangente se despega de ella; la estimación con la derivada es de primer orden, y con 10 cm el error es de unas centésimas de kelvin.', fbNo:{pistas:['\\(\\Delta T\\approx D_{\\vec u}T\\cdot h\\) con \\(h=0{,}1\\ \\text{m}\\).','En la dirección del gradiente \\(D_{\\vec u}T=\\|\\nabla T\\|=26\\); a lo largo de la curva de nivel, \\(0\\).']}, resol:'\\[\\|\\nabla T\\|=\\sqrt{24^2+10^2}=26,\\qquad\\Delta T_{\\text{máx}}\\approx26\\cdot0{,}1=2{,}6\\ \\text{K},\\qquad\\Delta T_{\\text{nivel}}\\approx0\\cdot0{,}1=0\\]\\[\\text{modelo: }T(P+0{,}1\\,\\vec u_{\\text{máx}})-T(P)=2{,}564\\ \\text{K},\\qquad T(P+0{,}1\\,\\vec u_{\\text{nula}})-T(P)=0{,}036\\ \\text{K}\\]', ver:{m:'placa',a:0.5,b:0.4,th:337.38,rev:1} }
+  ]}
+];
+const TOTAL_EJ = EJ_GIRO.length + EJ_DIR.length + EJ_REACTOR.length + PRACTICA.reduce((s,N)=>s+N.ej.length, 0);
+
+/* ---------- 1 · Inicio ---------- */
+INIT.inicio = () => {
+  crearPred8({ id:'pred-inicio', modelo:'recip', P:[0.6,0.7] });
+  const inp = $('inp-estudiante'); inp.value = E.estudiante || ''; inp.addEventListener('change', () => { E.estudiante = inp.value.trim(); guardar(); });
+};
+/* ---------- 2 · Girar ---------- */
+INIT.giro = () => {
+  crearGiro({ id:'ex-giro', modelo:'placa', a:0.5, b:0.4, th:100, modelos:['placa','recip','parab','elip2','silla','prod','gauss'] });
+  $('ej-giro').innerHTML = EJ_GIRO.map(ejercicioHTML).join('');
+  renderMath($('sec-giro'));
+};
+/* ---------- 3 · Direcciones ---------- */
+INIT.direcciones = () => {
+  $('ej-dir-ejemplos').innerHTML = pasosDirecciones(MODELOS.parab, 3, 4, 'Ejemplo 1 · \\(f(x,y)=x^2+y^2\\) en \\((3\\,;\\,4)\\)', true) + pasosDirecciones(MODELOS.placa, 0.5, 0.4, 'Ejemplo 2 · Placa calefactora \\(T(x,y)\\) en \\((0{,}5\\,;\\,0{,}4)\\), con unidades');
+  crearCampo({ id:'ex-campo', modelo:'elip2', P:[2,1.5] });
+  crearLecturaMapa({ id:'fig-lectura' });
+  $('ej-dir').innerHTML = EJ_DIR.map(ejercicioHTML).join('');
+  renderMath($('sec-direcciones'));
+};
+/* ---------- 4 · Reactor ---------- */
+INIT.reactor = () => {
+  crearReactor({ id:'ex-reactor', modelo:'rend', a:45, b:1, dx:5, dy:0.2, modelos:['rend','conc'] });
+  $('ej-comp-ejemplos').innerHTML = pasosCompensar(MODELOS.conc, 40, 200, 3, 'Ejemplo · Gas disuelto: la temperatura sube 3 °C, ¿cuánto presurizar?', true) + pasosCompensar(MODELOS.rend, 45, 1, 1, 'Ejemplo · Rendimiento: cada grado de más, ¿cuánta concentración de menos?');
+  $('ej-reactor').innerHTML = EJ_REACTOR.map(ejercicioHTML).join('');
+  renderMath($('sec-reactor'));
+};
+/* ---------- 5 · Práctica ---------- */
+INIT.practica = () => {
+  $('prac-tabs').innerHTML = PRACTICA.map((N,i)=>`<button data-n="${i}" class="${i===0?'on':''}">${N.titulo}</button>`).join('');
+  $('prac-tabs').querySelectorAll('button').forEach(bt => bt.addEventListener('click', () => mostrar(parseInt(bt.dataset.n))));
+  function mostrar(n){ $('prac-tabs').querySelectorAll('button').forEach((bt,i)=>bt.classList.toggle('on', i===n)); $('prac-panel').innerHTML = `<p class="nota">${PRACTICA[n].desc}</p>` + PRACTICA[n].ej.map(ejercicioHTML).join(''); renderMath($('prac-panel')); }
+  mostrar(0);
+  $('btn-reporte').addEventListener('click', generarReporte);
+  $('btn-imprimir').addEventListener('click', () => window.print());
+  $('btn-reiniciar').addEventListener('click', () => { if(!confirm('¿Borrar todo el progreso guardado en este navegador?')) return; try{ localStorage.removeItem(CLAVE); }catch(e){} location.reload(); });
+  renderMath($('sec-practica'));
+};
+function generarReporte(){
+  const fecha = new Date().toLocaleDateString('es-AR',{day:'2-digit',month:'2-digit',year:'numeric'});
+  const linea = '─'.repeat(60);
+  const vis = SECCIONES.filter(s=>E.visitadas[s.id] && s.id!=='inicio').map(s=>s.nombre);
+  const et = k => (EJ[k]&&EJ[k].etiqueta)||k.toUpperCase();
+  const resArr = Object.entries(E.ejercicios).filter(([k,v])=>v.ok);
+  const res = resArr.map(([k,v])=>`${et(k)} (${v.intentos} ${v.intentos===1?'intento':'intentos'}${v.resol?', resolución consultada':''})`);
+  const primer = resArr.filter(([k,v])=>v.intentos===1 && !v.resol).length;
+  const intentados = Object.entries(E.ejercicios).filter(([k,v])=>v.intentos>0||v.ok);
+  const sinResolver = intentados.filter(([k,v])=>!v.ok).map(([k,v])=>`${et(k)} (${v.intentos} ${v.intentos===1?'intento':'intentos'})`);
+  const desc = E.descubierto['ex-giro'];
+  const txt = `${linea}
+REPORTE DE RECORRIDO · MÁXIMO, MÍNIMO Y DIRECCIÓN NULA
+laboratoriobest-IA · Análisis Matemático II · Tecnicatura Superior en Química · INSPT-UTN
+${linea}
+Estudiante: ${E.estudiante || '(sin nombre)'}
+Fecha:      ${fecha}
+Unidad 3 · Propiedades direccionales del gradiente: máximo crecimiento, máximo decrecimiento, derivada nula
+
+Bloques visitados (${vis.length} de ${SECCIONES.length-1}): ${vis.join(', ') || 'ninguno'}
+Predicción inicial (ocho direcciones): ${E.predicciones['pred-inicio'] ? E.predicciones['pred-inicio'] : '—'}
+Dirección de máximo registrada en el explorador: ${desc ? `θ = ${fmt(desc.th,0)}° (${desc.ok?'acertó':'no acertó'})` : '—'}
+Ejercicios resueltos correctamente: ${res.length} de ${TOTAL_EJ} (intentados: ${intentados.length}; al primer intento y sin consultar la resolución: ${primer})
+  ${res.join('\n  ') || '—'}
+Intentados sin resolver: ${sinResolver.join(', ') || '—'}
+${linea}
+Generado por laboratoriobest-IA
+${linea}`;
+  $('texto-reporte').textContent = txt; return txt;
+}
+
+/* ================================================================
+   NAVEGACIÓN · pestañas, progreso, inicialización
+   ================================================================ */
+const SECCIONES = [
+  {id:'inicio',nombre:'Inicio',tn:'⌂'},{id:'giro',nombre:'Bloque 1 · Girar la dirección',tn:'1'},{id:'direcciones',nombre:'Bloque 2 · Tres direcciones',tn:'2'},
+  {id:'reactor',nombre:'Bloque 3 · En el reactor',tn:'3'},{id:'practica',nombre:'Bloque 4 · Práctica',tn:'4'}
+];
+const inicializadas = {};
+let seccionActual = 'inicio';
+function pintarNav(){
+  const d = $('tabs-inner');
+  d.innerHTML = SECCIONES.map((s,i)=>`<button class="tab-btn ${s.id===seccionActual?'active':''} ${E.visitadas[s.id]&&s.id!==seccionActual?'hecha':''}" data-tab="${s.id}"><span class="tn">${s.tn}</span>${s.nombre}</button>`).join('') + `<div class="prog"><span id="prog-txt">0 %</span><div class="bar"><i id="prog-bar"></i></div></div>`;
+  d.querySelectorAll('.tab-btn').forEach(b => b.addEventListener('click', () => irA(b.dataset.tab)));
+}
+function irA(id){
+  const sec = $('sec-'+id); if(!sec) return;
+  desactivarExploradoresDe('sec-'+seccionActual);
+  $$('.tab-content').forEach(s=>s.classList.remove('active'));
+  sec.classList.add('active'); seccionActual = id;
+  if(!inicializadas[id]){ inicializadas[id]=true; if(INIT[id]) INIT[id](); }
+  activarExploradoresDe('sec-'+id);
+  E.visitadas[id]=true; guardar(); actualizarProgreso();
+  window.scrollTo({top:0, behavior:'smooth'});
+  const tb = document.querySelector(`.tab-btn[data-tab="${id}"]`); if(tb && tb.scrollIntoView) tb.scrollIntoView({block:'nearest', inline:'center', behavior:'smooth'});
+}
+function actualizarProgreso(){
+  const vis = SECCIONES.filter(s=>E.visitadas[s.id]&&s.id!=='inicio').length/(SECCIONES.length-1);
+  const res = Math.min(1, Object.values(E.ejercicios).filter(v=>v.ok).length/TOTAL_EJ);
+  const p = Math.round(100*(0.4*vis+0.6*res));
+  pintarNav();
+  $('prog-bar').style.width = p+'%'; $('prog-txt').textContent = p+' %';
+}
+document.addEventListener('DOMContentLoaded', () => {
+  cargar();
+  renderMath(document.body);
+  inicializadas.inicio = true; INIT.inicio();
+  actualizarProgreso();
+  if(location.hash){ const id = location.hash.slice(1); if($('sec-'+id)) irA(id); }
+  if(location.search.includes('test')){ const r = autotest(); window.__TESTS__ = r; const malos = r.filter(t=>!t.ok); const d=document.createElement('pre'); d.className='reporte'; d.style.margin='12px'; d.textContent = `AUTOTEST: ${r.length-malos.length} de ${r.length} correctos\n` + malos.map(t=>`✗ ${t.nombre}: ${t.val} (esperado ${t.esp})`).join('\n'); document.body.insertBefore(d, document.body.firstChild); }
+});
+let _tResize=null;
+window.addEventListener('resize', () => { clearTimeout(_tResize); _tResize=setTimeout(()=>{ Object.values(EXPLORADORES).forEach(ex=>{ if(ex.activo && ex.redibujar) ex.redibujar(); }); }, 150); });
+
+</script>
+</body>
+</html>
